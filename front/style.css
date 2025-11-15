@@ -1,0 +1,37 @@
+body, html {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    overflow-x: hidden;
+    font-family: "Pretendard", sans-serif;
+}
+
+/* 위쪽 멋있는 그라데이션 배경 */
+.gradient-bg {
+    height: 100vh;
+    background: linear-gradient(180deg, #A97BFF, #B2C7FF, #E8F1FF);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: white;
+    text-align: center;
+    padding: 30px;
+}
+
+/* 흰색 패널 */
+#white-section {
+    background: white;
+    border-radius: 40px 40px 0 0;
+    padding: 60px 30px;
+    min-height: 100vh;
+
+    /* 처음에는 아래쪽(숨김) 상태 */
+    transform: translateY(40px);
+    transition: transform 0.6s ease, box-shadow 0.5s ease;
+}
+
+/* 스크롤 후 활성화된 상태 */
+#white-section.active {
+    transform: translateY(0);
+    box-shadow: 0 -10px 30px rgba(0,0,0,0.1);
+}
