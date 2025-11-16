@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>회원가입</title>
+
+    <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+<a href="login.html" class="back-btn">← 뒤로가기</a>
+<div class="login-bg"></div>
+
+<div class="login-container">
+    <h1 class="login-title">회원가입</h1>
+
+    <div class="login-box">
+
+        <div class="input-group">
+            <label>이메일</label>
+            <div class="email-row">
+                <input type="email" id="signup-email" placeholder="example@mail.com">
+                <button class="verify-btn" onclick="sendCode()">인증번호 보내기</button>
+            </div>
+        </div>
+
+        <div class="input-group">
+            <label>인증번호</label>
+            <input type="text" id="signup-code" placeholder="이메일로 받은 인증번호 입력">
+        </div>
+
+        <div class="input-group">
+            <label>이름</label>
+            <input type="text" id="signup-name" placeholder="이름 입력">
+        </div>
+
+        <div class="input-group">
+            <label>비밀번호</label>
+            <input type="password" id="signup-password" placeholder="비밀번호 입력">
+        </div>
+
+        <div class="input-group">
+            <label>비밀번호 확인</label>
+            <input type="password" id="signup-password2" placeholder="비밀번호 재입력">
+        </div>
+
+        <button class="login-btn" onclick="signUp()">회원가입 하기 ✓</button>
+
+        <div class="login-bottom">
+            <p>이미 계정이 있으신가요? <a href="login.html">로그인</a></p>
+        </div>
+
+
+    </div>
+</div>
+
+<script>
+function signUp() {
+    const email = document.getElementById("signup-email").value.trim();
+    const name = document.getElementById("signup-name").value.trim();
+    const pw1 = document.getElementById("signup-password").value;
+    const pw2 = document.getElementById("signup-password2").value;
+
+    if (!email || !name || !pw1 || !pw2) {
+        alert("모든 정보를 입력해주세요!");
+        return;
+    }
+
+    if (pw1 !== pw2) {
+        alert("비밀번호가 일치하지 않습니다.");
+        return;
+    }
+
+    alert("회원가입이 완료되었습니다!");
+}
+</script>
+
+</body>
+</html>
