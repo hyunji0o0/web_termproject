@@ -7,7 +7,7 @@
     <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-
+<a href="login.html" class="login-link">로그인</a>
 <div class="gradient-bg"></div>
     
 <div class="title-box">
@@ -19,11 +19,76 @@
     </div>
 </div>
 
-    <div id="white-section">
-        <h2>White Content Section</h2>
-        <p>스크롤 모션 테스트용 콘텐츠</p>
-        <p>내리면 위로 올라오고 올리면 아래로 내려갑니다.</p>
+<div id="white-section">
+    <h1 class="section-title">기초대사량 / BMI 계산</h1>
+
+    <div class="calculator-container">
+        <div class="bmr-box card">
+            <h2 class="calc-title">기초대사량 계산기</h2>
+
+            <div class="input-group">
+                <label>성별</label>
+                <select id="gender">
+                    <option value="">- 선택 -</option>
+                    <option value="male">남성</option>
+                    <option value="female">여성</option>
+                </select>
+            </div>
+
+            <div class="input-row">
+                <div class="input-group">
+                    <label>신장 (cm)</label>
+                    <input type="number" id="height" placeholder="키 입력">
+                </div>
+
+                <div class="input-group">
+                    <label>체중 (kg)</label>
+                    <input type="number" id="weight" placeholder="몸무게 입력">
+                </div>
+
+                <div class="input-group">
+                    <label>나이 (만)</label>
+                    <input type="number" id="age" placeholder="나이 입력">
+                </div>
+            </div>
+
+            <button class="calc-btn" onclick="calculateBMR()">계산하기 ✓</button>
+
+            <div class="calc-result">
+                <p>기초대사량</p>
+                <span id="bmr-value">0</span> kcal
+            </div>
+        </div>
+
+        <div class="bmi-box card">
+            <h2 class="calc-title">BMI 계산기</h2>
+
+            <div class="input-row">
+                <div class="input-group">
+                    <label>신장 (cm)</label>
+                    <input type="number" id="bmi-height" placeholder="키 입력">
+                </div>
+
+                <div class="input-group">
+                    <label>체중 (kg)</label>
+                    <input type="number" id="bmi-weight" placeholder="몸무게 입력">
+                </div>
+            </div>
+
+            <button class="calc-btn" onclick="calculateBMI()">계산하기 ✓</button>
+
+            <div class="calc-result">
+                <p>BMI</p>
+                <span id="bmi-value">0</span>
+            </div>
+            <div class="bmi-status-box">
+                <p id="bmi-status-text">체질량지수 결과</p>
+            </div>
+        </div>
+
     </div>
+
+</div>
 
     <script src="script.js"></script>
 </body>
