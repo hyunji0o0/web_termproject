@@ -26,7 +26,10 @@
 
         <div class="input-group">
             <label>인증번호</label>
-            <input type="text" id="signup-code" placeholder="이메일로 받은 인증번호 입력">
+            <div class="verify-row">
+                <input type="text" id="signup-code" placeholder="이메일로 받은 인증번호 입력">
+                <button class="verify-btn" onclick="checkCode()">확인</button>
+            </div>
         </div>
 
         <div class="input-group">
@@ -44,7 +47,7 @@
             <input type="password" id="signup-password2" placeholder="비밀번호 재입력">
         </div>
 
-        <button class="login-btn" onclick="signUp()">회원가입 하기 ✓</button>
+        <button class="login-btn" onclick="signUp()">다음 ✓</button>
 
         <div class="login-bottom">
             <p>이미 계정이 있으신가요? <a href="login.html">로그인</a></p>
@@ -71,7 +74,7 @@ function signUp() {
         return;
     }
 
-    alert("회원가입이 완료되었습니다!");
+    window.location.href = "user.html";
 }
 </script>
 

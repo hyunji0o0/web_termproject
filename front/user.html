@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>추가 정보 입력</title>
+
+    <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+<a href="signup.html" class="back-btn">← 뒤로가기</a>
+
+<div class="login-bg"></div>
+
+<div class="login-container">
+    <h1 class="login-title">추가 정보 입력</h1>
+
+    <div class="login-box">
+
+        <!-- 키 -->
+        <div class="input-group">
+            <label>키 (cm) *</label>
+            <input type="number" id="height" placeholder="예: 165">
+        </div>
+
+        <!-- 몸무게 -->
+        <div class="input-group">
+            <label>몸무게 (kg) *</label>
+            <input type="number" id="weight" placeholder="예: 55">
+        </div>
+
+        <!-- 나이 -->
+        <div class="input-group">
+            <label>나이 *</label>
+            <input type="number" id="age" placeholder="예: 22">
+        </div>
+
+        <!-- 성별 -->
+        <div class="input-group">
+            <label>성별 *</label>
+            <div class="gender-row">
+                <label><input type="radio" name="gender" value="male"> 남성</label>
+                <label><input type="radio" name="gender" value="female"> 여성</label>
+            </div>
+        </div>
+
+        <!-- BMI (선택) -->
+        <div class="input-group">
+            <label>BMI (선택)</label>
+            <input type="number" id="bmi" placeholder="본인의 BMI를 알고있다면 입력해주세요!">
+        </div>
+
+        <!-- 완료 버튼 -->
+        <button class="login-btn" onclick="finishSignUp()">완료 ✓</button>
+
+        <div class="login-bottom">
+            <p>이미 계정이 있으신가요?<a href="login.html">로그인</a></p>
+        </div>
+
+    </div>
+</div>
+
+<script>
+function finishSignUp() {
+    const height = document.getElementById("height").value.trim();
+    const weight = document.getElementById("weight").value.trim();
+    const age = document.getElementById("age").value.trim();
+    const gender = document.querySelector("input[name='gender']:checked");
+
+    if (!height || !weight || !age || !gender) {
+        alert("필수 항목을 모두 입력해주세요!");
+        return;
+    }
+
+    alert("회원가입이 완료되었습니다.");
+    window.location.href = "home.html";
+}
+</script>
+
+</body>
+</html>

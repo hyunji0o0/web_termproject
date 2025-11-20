@@ -335,3 +335,16 @@ body, html {
     background: #A67CFF;
     transform: translateY(-2px);
 }
+
+.gender-row {
+    display: flex;
+    gap: 15px;
+    margin-top: 8px;
+}
+
+.gender-row label {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 15px;
+}
