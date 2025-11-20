@@ -3,18 +3,10 @@ body, html {
     padding: 0;
     height: 200vh;
     overflow-x: hidden;
+    overflow-y: scroll;
     font-family: "Pretendard", sans-serif;
-}
-
-.gradient-bg {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100vh;
-    color: white;
-    background: linear-gradient(180deg, #A67CFF, #B6C9FF, #E9F2FF);
-    z-index: -1;
+    scroll-behavior: smooth;
+    
 }
 
 #white-section {
@@ -23,14 +15,16 @@ body, html {
     background: white;
     padding: 60px 30px;
     min-height: 150vh;
-    margin-top: 40vh;
+    margin-top: 35vh;
     border-radius: 40px 0 0 0;
     transform: translateY(80px);
     transition: transform 0.7s ease;
 }
 
+
 #white-section.active {
     transform: translateY(0);
+    will-change: transform;
 }
 
 .title-box h1 {
@@ -72,8 +66,8 @@ body, html {
 }
 
 .login-link {
-    position: fixed;
-    top: 20px;
+    position: absolute;
+    top: -100px;
     right: 30px;
     color: white;
     font-size: 1.2rem;
@@ -91,8 +85,8 @@ body, html {
 }
 
 .section-title {
-    text-align: center;
-    font-size: 2.3rem;
+    text-align: left;
+    font-size: 2.5rem;
     font-weight: 800;
     color: #6A48D7;
     margin-bottom: 40px;
@@ -101,7 +95,8 @@ body, html {
 .calculator-container {
     width: 90%;
     max-width: 1400px;
-    margin: 27px;
+    margin: 20px;
+    margin-bottom: 100px;
     display: flex;
     gap: 40px;
     justify-content: space-between;
@@ -350,7 +345,8 @@ body, html {
 }
 
 .activity-box {
-    margin: 0 auto;
-    max-width: 780px;
+    margin: 20px;
+    max-width: 1250px;
     width: 100%
 }
+

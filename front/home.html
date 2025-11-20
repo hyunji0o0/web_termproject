@@ -3,8 +3,9 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Gradient Background Scroll Motion</title>
+    <title>마이 피트니스 파트너</title>
     <link rel="stylesheet" href="style.css" />
+    <link rel="stylesheet" href="gradient_back.css" />
 </head>
 <body>
 <a href="login.html" class="login-link">로그인</a>
@@ -19,8 +20,9 @@
     </div>
 </div>
 
+<!--기초대사량/BMI 계산하는 부분-->
 <div id="white-section">
-    <h1 class="section-title">기초대사량 / BMI 계산</h1>
+    <h1 class="section-title" id="bmi-section">기초대사량 / BMI 계산</h1>
 
     <div class="calculator-container">
         <div class="bmr-box card">
@@ -86,9 +88,14 @@
             </div>
         </div>
     </div>
-    <h1 class="section-title">활동대사량 계산기</h1>
+
+    <h1 class="section-title" id="food-section">영양성분 계산기</h1>
+
+    <!--활동 대사량 부분-->
+    <h1 class="section-title" id="activity-section">활동대사량 계산기</h1>
 
     <div class="activity-box card">
+
     <div class="input-group">
         <label>체중 (kg)</label>
         <input type="number" id="activity-weight" placeholder="몸무게 입력">
@@ -111,7 +118,10 @@
     <div class="input-group">
         <label>운동 시간</label>
         <div style="display:flex; gap:10px;">
-            <input type="number" id="activity-hour" placeholder="시간 (h)" min="0">
+            <select id="activity-hour">
+                <option value="0">0 시간</option>
+            </select>
+
             <input type="number" id="activity-minute" placeholder="분 (m)" min="0" max="59">
         </div>
     </div>
