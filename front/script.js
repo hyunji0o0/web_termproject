@@ -127,6 +127,9 @@ function calculateActivity() {
     const kcal = (0.0175 * met * weight * totalMinutes).toFixed(2);
 
     document.getElementById("activity-value").innerText = kcal;
+    document.getElementById("today-activity-kcal").textContent = kcal;
+
 }
+
 
 
