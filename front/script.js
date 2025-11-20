@@ -65,3 +65,29 @@ document.querySelector(".gradient-buttons button:nth-child(1)")
         });
     });
 
+function calculateActivity() { 
+    const weight = parseFloat(document.getElementById("activity-select").value);
+    const met = parseFloat(document.getElementById("activity-select").value);
+
+    const hour = parseFloat(document.getElementById("activity-hour").value) || 0;
+    const minute = parseFloat(document.getElementById("activity-minute").value) || 0;
+
+    const totalMinutes = hour * 60 + minute;
+
+    if (!met || totalMinutes <= 0) {
+        alert("운동 종목과 운동 시간을 입력해주세요!");
+        return;
+    }
+
+    if (minute >= 60 || hour >= 24) {
+        alert("minute은 0~59 사이 / hour은 0~23 사이의 수를 입력해주세요!");
+        return;
+    }
+
+
+    // kcal = 0.0175 × MET × 체중(kg) × 시간(분)
+    const kcal = (0.0175 * met * weight * totalMinutes).toFixed(2);
+
+    document.getElementById("activity-value").innerText = kcal;
+}
+

@@ -85,8 +85,45 @@
                 <p id="bmi-status-text">체질량지수 결과</p>
             </div>
         </div>
-
     </div>
+    <h1 class="section-title">활동대사량 계산기</h1>
+
+    <div class="activity-box card">
+    <div class="input-group">
+        <label>체중 (kg)</label>
+        <input type="number" id="activity-weight" placeholder="몸무게 입력">
+    </div>
+    <!-- 운동 종목 선택 -->
+    <div class="input-group">
+        <label>운동 종목</label>
+        <select id="activity-select">
+            <option value="">- 선택 -</option>
+            <option value="3.5">가벼운 걷기 (MET 3.5)</option>
+            <option value="7">조깅 (MET 7)</option>
+            <option value="8">달리기 (MET 8)</option>
+            <option value="4">자전거 (MET 4)</option>
+            <option value="6">수영 (MET 6)</option>
+            <option value="5">근력운동 (MET 5)</option>
+        </select>
+    </div>
+
+    <!-- 운동 시간 입력 -->
+    <div class="input-group">
+        <label>운동 시간</label>
+        <div style="display:flex; gap:10px;">
+            <input type="number" id="activity-hour" placeholder="시간 (h)" min="0">
+            <input type="number" id="activity-minute" placeholder="분 (m)" min="0" max="59">
+        </div>
+    </div>
+
+    <button class="calc-btn" onclick="calculateActivity()">계산하기 ✓</button>
+
+    <div class="calc-result">
+        <p>활동대사량</p>
+        <span id="activity-value">0</span> kcal
+    </div>
+</div>
+
 
 </div>
 

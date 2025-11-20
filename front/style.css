@@ -348,3 +348,9 @@ body, html {
     gap: 5px;
     font-size: 15px;
 }
+
+.activity-box {
+    margin: 0 auto;
+    max-width: 780px;
+    width: 100%
+}
