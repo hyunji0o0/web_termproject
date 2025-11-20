@@ -14,6 +14,7 @@ body::-webkit-scrollbar {
 }
 body {
     scrollbar-width: none;
+    position: relative;
 }
 
 #white-section {
