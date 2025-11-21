@@ -4,7 +4,8 @@ use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;
 
 // Composer의 autoload 파일 로드
-require 'vendor/autoload.php';
+require_once 'vendor/autoload.php';
+require_once 'config.php'; // 추가 설정 파일
 
 // 네이버 SMTP를 사용해 인증 메일을 발송
 // $toEmail: 수신자 이메일 주소 
@@ -19,13 +20,13 @@ function sendVerificationEmail($toEmail, $code) {
         $mail->isSMTP(); // SMTP 사용 설정
         $mail->Host= 'smtp.naver.com'; // 네이버 SMTP 서버 주소
         $mail->SMTPAuth= true; // SMTP 인증 사용
-        $mail->Username= 'your_naver_mail'; // 본인의 네이버 ID (전체 이메일 주소), 프론트에서 입력받기
-        $mail->Password= 'naverApp_password'; // 네이버 앱 비밀번호, 네이버 앱에서 2차 인증키 생성 후 프론트에서 직접 입력 
+        $mail->Username= MAIL_USERNAME; // 메일 발신자의 네이버 이메일 주소, config.php에서 입력
+        $mail->Password= MAIL_PASSWORD; // 네이버 앱 비밀번호, 네이버 앱에서 2차 인증키 생성 후 config.php에서 입력 
         $mail->SMTPSecure= PHPMailer::ENCRYPTION_SMTPS; // SSL 암호화 사용 (SMTPS)
         $mail->Port= 465; // SMTPS 포트
 
         // 2. 발신자/수신자 설정
-        $mail->setFrom($Username, '마이 피트니스 파트너'); // 발신자 정보
+        $mail->setFrom(MAIL_USERNAME, '마이 피트니스 파트너'); // 발신자 정보
         $mail->addAddress($toEmail); // 수신자 이메일 주소
 
         // 3. 메일 내용 설정
