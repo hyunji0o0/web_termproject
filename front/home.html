@@ -3,10 +3,11 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Gradient Background Scroll Motion</title>
+    <title>마이 피트니스 파트너</title>
     <link rel="stylesheet" href="style.css" />
+    <link rel="stylesheet" href="gradient_back.css" />
 </head>
-<body>
+<body class="main-page">
 <a href="login.html" class="login-link">로그인</a>
 <div class="gradient-bg"></div>
     
@@ -17,10 +18,17 @@
         <button>식품 영양성분 계산</button>
         <button>활동대사량 계산</button>
     </div>
+    <!-- 버튼 아래 요약 원형 카드 -->
+    <div class="summary-circle">
+        <p>오늘의 활동대사량</p>
+        <span id="today-activity-kcal">0</span> kcal
+    </div>
+
 </div>
 
+<!--기초대사량/BMI 계산하는 부분-->
 <div id="white-section">
-    <h1 class="section-title">기초대사량 / BMI 계산</h1>
+    <h1 class="section-title" id="bmi-section">기초대사량 / BMI 계산</h1>
 
     <div class="calculator-container">
         <div class="bmr-box card">
@@ -85,8 +93,53 @@
                 <p id="bmi-status-text">체질량지수 결과</p>
             </div>
         </div>
-
     </div>
+
+    <h1 class="section-title" id="food-section">영양성분 계산기</h1>
+
+    <!--활동 대사량 부분-->
+    <h1 class="section-title" id="activity-section">활동대사량 계산기</h1>
+
+    <div class="activity-box card">
+
+    <div class="input-group">
+        <label>체중 (kg)</label>
+        <input type="number" id="activity-weight" placeholder="몸무게 입력">
+    </div>
+    <!-- 운동 종목 선택 -->
+    <div class="input-group">
+        <label>운동 종목</label>
+        <select id="activity-select">
+            <option value="">- 선택 -</option>
+            <option value="3.5">가벼운 걷기 (MET 3.5)</option>
+            <option value="7">조깅 (MET 7)</option>
+            <option value="8">달리기 (MET 8)</option>
+            <option value="4">자전거 (MET 4)</option>
+            <option value="6">수영 (MET 6)</option>
+            <option value="5">근력운동 (MET 5)</option>
+        </select>
+    </div>
+
+    <!-- 운동 시간 입력 -->
+    <div class="input-group">
+        <label>운동 시간</label>
+        <div style="display:flex; gap:10px;">
+            <select id="activity-hour">
+                <option value="0">0 시간</option>
+            </select>
+
+            <input type="number" id="activity-minute" placeholder="분 (m)" min="0" max="59">
+        </div>
+    </div>
+
+    <button class="calc-btn" onclick="calculateActivity()">계산하기 ✓</button>
+
+    <div class="calc-result">
+        <p>활동대사량</p>
+        <span id="activity-value">0</span> kcal
+    </div>
+</div>
+
 
 </div>
 
