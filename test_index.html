@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>마이 피트니스 파트너 - 전체 기능 테스트</title>
+    <!-- 스타일링 (CSS) -->
+    <style>
+        /* 기본 레이아웃 설정 */
+        body { font-family: 'Noto Sans KR', sans-serif; background-color: #eef2f5; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
+        .container { background: white; padding: 2.5rem; border-radius: 12px; box-shadow: 0 8px 20px rgba(0,0,0,0.1); width: 400px; max-height: 95vh; overflow-y: auto; }
+        
+        /* 타이틀 및 텍스트 */
+        h2 { text-align: center; color: #333; margin-bottom: 1.5rem; font-size: 1.8rem; }
+        p { color: #666; margin-bottom: 10px; }
+        
+        /* 입력 필드 스타일 */
+        input, select { width: 100%; padding: 12px; margin-bottom: 12px; border: 1px solid #ddd; border-radius: 6px; box-sizing: border-box; font-size: 1rem; transition: border-color 0.2s; }
+        input:focus, select:focus { border-color: #007bff; outline: none; }
+        
+        /* 버튼 공통 스타일 */
+        button { width: 100%; padding: 12px; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; transition: all 0.2s; margin-bottom: 8px; font-size: 1rem; }
+        
+        /* 버튼 색상별 스타일 */
+        .btn-primary { background-color: #007bff; color: white; }
+        .btn-primary:hover { background-color: #0056b3; }
+        .btn-success { background-color: #28a745; color: white; }
+        .btn-success:hover { background-color: #218838; }
+        .btn-danger { background-color: #dc3545; color: white; margin-top: 15px; }
+        .btn-danger:hover { background-color: #c82333; }
+        .btn-outline { background-color: transparent; border: 1px solid #007bff; color: #007bff; margin-top: 5px; }
+        .btn-outline:hover { background-color: #f0f8ff; }
+        
+        /* 메시지 및 유틸리티 */
+        #message { margin-top: 15px; font-size: 0.9rem; text-align: center; min-height: 20px; padding: 10px; border-radius: 5px; }
+        .hidden { display: none !important; }
+        .row { display: flex; gap: 10px; } /* 입력창 가로 배치용 */
+        .row input, .row select { flex: 1; }
+        .divider { border-top: 1px solid #eee; margin: 20px 0; }
+        
+        /* 대시보드 정보 카드 */
+        .info-card { background: #f8f9fa; padding: 15px; border-radius: 8px; border: 1px solid #eee; line-height: 1.6; }
+        .info-label { color: #888; font-size: 0.85rem; }
+        .info-value { font-weight: bold; color: #333; font-size: 1.1rem; }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h2 id="page-title">💪 Fitness Partner</h2>
+
+        <!-- ========================================== -->
+        <!-- 1. 로그인 화면 (Login View) -->
+        <!-- ========================================== -->
+        <div id="login-view">
+            <input type="email" id="login-email" placeholder="이메일 (예: user@naver.com)" value="hanbin9570@naver.com">
+            <input type="password" id="login-password" placeholder="비밀번호" value="1234">
+            
+            <button class="btn-primary" onclick="handleLogin()">로그인</button>
+            <button class="btn-outline" onclick="switchView('signup')">회원가입 하러가기</button>
+        </div>
+
+        <!-- ========================================== -->
+        <!-- 2. 회원가입 화면 (Signup View) -->
+        <!-- ========================================== -->
+        <div id="signup-view" class="hidden">
+            <input type="email" id="reg-email" placeholder="이메일 (필수)">
+            <input type="password" id="reg-password" placeholder="비밀번호 (필수)">
+            <input type="text" id="reg-name" placeholder="이름 (필수)">
+            
+            <div class="row">
+                <input type="number" id="reg-height" placeholder="키 (cm)">
+                <input type="number" id="reg-weight" placeholder="몸무게 (kg)">
+            </div>
+            
+            <div class="row">
+                <input type="number" id="reg-age" placeholder="나이">
+                <select id="reg-gender">
+                    <option value="male">남성</option>
+                    <option value="female">여성</option>
+                </select>
+            </div>
+
+            <button class="btn-success" onclick="handleRegister()">회원가입 & 인증메일 발송</button>
+            <button class="btn-outline" onclick="switchView('login')">취소하고 로그인으로</button>
+        </div>
+
+        <!-- ========================================== -->
+        <!-- 3. 이메일 인증 화면 (Verify View) -->
+        <!-- ========================================== -->
+        <div id="verify-view" class="hidden">
+            <p style="text-align:center;">
+                <strong id="verify-target-email"></strong><br>
+                위 메일로 전송된 6자리 코드를 입력하세요.
+            </p>
+            <input type="text" id="verify-code" placeholder="인증코드 6자리" style="text-align: center; letter-spacing: 5px; font-size: 1.5rem;" maxlength="6">
+            
+            <button class="btn-success" onclick="handleVerify()">인증 확인</button>
+            <button class="btn-outline" onclick="switchView('signup')">뒤로 가기</button>
+        </div>
+
+        <!-- ========================================== -->
+        <!-- 4. 대시보드 화면 (Dashboard View) -->
+        <!-- ========================================== -->
+        <div id="dashboard-view" class="hidden">
+            <div id="user-info-area" class="info-card">
+                <!-- 사용자 정보가 여기에 로드됩니다 -->
+                데이터 로딩 중...
+            </div>
+            
+            <div class="divider"></div>
+            
+            <button class="btn-primary" onclick="fetchUserInfo()">🔄 정보 새로고침</button>
+            <button class="btn-danger" onclick="handleLogout()">로그아웃</button>
+        </div>
+
+        <!-- 상태 메시지 출력 영역 -->
+        <div id="message" class="hidden"></div>
+    </div>
+
+    <!-- 자바스크립트 로직 -->
+    <script>
+        const API_URL = '.'; // PHP 파일들이 있는 현재 경로
+
+        // 1. 페이지 로드 시 로그인 상태 체크
+        window.onload = () => {
+            const token = localStorage.getItem('jwt_token');
+            if (token) {
+                switchView('dashboard');
+                fetchUserInfo();
+            } else {
+                switchView('login');
+            }
+        };
+
+        // 2. 화면 전환 함수 (SPA 처럼 보이게 함)
+        function switchView(viewName) {
+            // 모든 화면 숨기기
+            ['login-view', 'signup-view', 'verify-view', 'dashboard-view'].forEach(id => {
+                document.getElementById(id).classList.add('hidden');
+            });
+            // 선택한 화면 보이기
+            document.getElementById(viewName + '-view').classList.remove('hidden');
+            
+            // 메시지 창 초기화
+            hideMessage();
+
+            // 타이틀 변경
+            const titles = {
+                'login': '💪 로그인',
+                'signup': '📝 회원가입',
+                'verify': '📧 이메일 인증',
+                'dashboard': '🏠 마이 페이지'
+            };
+            document.getElementById('page-title').innerText = titles[viewName] || 'Fitness Partner';
+        }
+
+        // ---------------------------------------------------------
+        // [기능 1] 회원가입 및 메일 발송 (Register Flow)
+        // ---------------------------------------------------------
+        async function handleRegister() {
+            // 입력값 가져오기
+            const userData = {
+                email: document.getElementById('reg-email').value,
+                password: document.getElementById('reg-password').value,
+                name: document.getElementById('reg-name').value,
+                height: document.getElementById('reg-height').value,
+                weight: document.getElementById('reg-weight').value,
+                age: document.getElementById('reg-age').value,
+                gender: document.getElementById('reg-gender').value
+            };
+
+            if (!userData.email || !userData.password || !userData.name) {
+                return showMessage('이메일, 비밀번호, 이름은 필수입니다.', 'red');
+            }
+
+            showMessage('회원정보 저장 중...', 'blue');
+
+            try {
+                // 1단계: DB에 회원정보 저장 (register.php)
+                let res = await fetch(`${API_URL}/register.php`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(userData)
+                });
+                let data = await res.json();
+
+                if (!data.success) throw new Error(data.message);
+
+                // 2단계: 인증 메일 발송 (send-verification.php)
+                showMessage('가입 성공! 인증 메일 발송 중...', 'blue');
+                
+                res = await fetch(`${API_URL}/send-verification.php`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email: userData.email })
+                });
+                data = await res.json();
+
+                if (data.success) {
+                    // 성공 시 인증 화면으로 이동
+                    document.getElementById('verify-target-email').innerText = userData.email;
+                    switchView('verify');
+                    showMessage('✅ 인증 메일이 발송되었습니다. 코드를 입력하세요.', 'green');
+                } else {
+                    throw new Error('메일 발송 실패: ' + data.message);
+                }
+
+            } catch (err) {
+                showMessage('❌ 오류: ' + err.message, 'red');
+            }
+        }
+
+        // ---------------------------------------------------------
+        // [기능 2] 인증 코드 확인 (Verify)
+        // ---------------------------------------------------------
+        async function handleVerify() {
+            // 가입 화면에 입력했던 이메일을 그대로 사용
+            const email = document.getElementById('reg-email').value; 
+            const code = document.getElementById('verify-code').value;
+
+            if (!code || code.length < 6) {
+                return showMessage('6자리 코드를 입력하세요.', 'red');
+            }
+
+            try {
+                const res = await fetch(`${API_URL}/verify.php`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, code })
+                });
+                const data = await res.json();
+
+                if (data.success) {
+                    alert('인증 성공! 이제 로그인할 수 있습니다.');
+                    switchView('login');
+                    // 로그인 편의를 위해 이메일 자동 입력
+                    document.getElementById('login-email').value = email;
+                    document.getElementById('login-password').value = '';
+                    document.getElementById('login-password').focus();
+                } else {
+                    showMessage('❌ ' + data.message, 'red');
+                }
+            } catch (err) {
+                showMessage('❌ 서버 통신 오류', 'red');
+            }
+        }
+
+        // ---------------------------------------------------------
+        // [기능 3] 로그인 (Login)
+        // ---------------------------------------------------------
+        async function handleLogin() {
+            const email = document.getElementById('login-email').value;
+            const password = document.getElementById('login-password').value;
+
+            if(!email || !password) return showMessage('이메일과 비밀번호를 입력하세요.', 'red');
+
+            showMessage('로그인 중...', 'blue');
+
+            try {
+                const res = await fetch(`${API_URL}/login.php`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, password })
+                });
+                const data = await res.json();
+
+                if (data.success) {
+                    // 토큰 저장 (핵심!)
+                    localStorage.setItem('jwt_token', data.token);
+                    switchView('dashboard');
+                    fetchUserInfo();
+                } else {
+                    showMessage('❌ ' + data.message, 'red');
+                }
+            } catch (err) {
+                showMessage('❌ 서버 오류가 발생했습니다.', 'red');
+            }
+        }
+
+        // ---------------------------------------------------------
+        // [기능 4] 사용자 정보 불러오기 (Protected Route)
+        // ---------------------------------------------------------
+        async function fetchUserInfo() {
+            const token = localStorage.getItem('jwt_token');
+            if (!token) return handleLogout();
+
+            try {
+                const res = await fetch(`${API_URL}/request_user_info.php`, {
+                    method: 'GET',
+                    headers: { 
+                        'Authorization': `Bearer ${token}` // JWT 토큰 제출
+                    }
+                });
+                const data = await res.json();
+
+                if (data.success) {
+                    const u = data.data;
+                    // 화면 갱신
+                    document.getElementById('user-info-area').innerHTML = `
+                        <div class="info-label">이름</div>
+                        <div class="info-value">${u.name}</div>
+                        <br>
+                        <div class="info-label">이메일</div>
+                        <div class="info-value">${u.email}</div>
+                        <br>
+                        <div class="info-label">신체 정보</div>
+                        <div class="info-value">${u.height}cm / ${u.weight}kg / ${u.age}세 (${u.gender})</div>
+                        <br>
+                        <div class="info-label">계정 상태</div>
+                        <div class="info-value" style="color:green;">✅ 이메일 인증 완료됨</div>
+                    `;
+                    showMessage('정보가 최신으로 갱신되었습니다.', 'green');
+                } else {
+                    // 토큰 만료나 로그아웃된 토큰인 경우
+                    showMessage('⚠️ ' + data.message, 'orange');
+                    if (res.status === 401) {
+                        setTimeout(handleLogout, 2000); // 2초 뒤 로그아웃 처리
+                    }
+                }
+            } catch (err) {
+                console.error(err);
+            }
+        }
+
+        // ---------------------------------------------------------
+        // [기능 5] 로그아웃 (Logout)
+        // ---------------------------------------------------------
+        async function handleLogout() {
+            const token = localStorage.getItem('jwt_token');
+            if (token) {
+                try {
+                    // 서버에 로그아웃 요청 (블랙리스트 등록)
+                    await fetch(`${API_URL}/logout.php`, {
+                        method: 'POST',
+                        headers: { 'Authorization': `Bearer ${token}` }
+                    });
+                } catch (e) { console.error(e); }
+            }
+
+            // 클라이언트 토큰 삭제
+            localStorage.removeItem('jwt_token');
+            switchView('login');
+            showMessage('로그아웃 되었습니다.', 'gray');
+        }
+
+        // 메시지 표시 함수
+        function showMessage(text, color) {
+            const el = document.getElementById('message');
+            el.textContent = text;
+            el.style.backgroundColor = color === 'red' ? '#ffeaea' : (color === 'green' ? '#eaffea' : '#eef2f5');
+            el.style.color = color === 'gray' ? '#666' : color;
+            el.classList.remove('hidden');
+        }
+
+        function hideMessage() {
+            document.getElementById('message').classList.add('hidden');
+        }
+    </script>
+</body>
+</html>
