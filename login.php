@@ -61,6 +61,15 @@ try {
     // JWT 생성
     $jwt = JWT::encode($payload, JWT_SECRET_KEY, 'HS256'); // HS256 알고리즘 사용
 
+    // 발급된 토큰을 dev_tokens 테이블에 저장
+    try {
+        $log_sql = "INSERT INTO dev_tokens (user_email, token) VALUES (?, ?)";
+        $log_stmt = $pdo->prepare($log_sql);
+        $log_stmt->execute([$email, $jwt]);
+    } catch (Exception $e) {
+        error_log($e->getMessage());
+    }
+    
     // 6. 토큰과 함께 성공 응답
     echo json_encode([
         'success' => true,
@@ -78,3 +87,4 @@ catch (Exception $e) {
     // error_log($e->getMessage());
 }
 ?>
+
