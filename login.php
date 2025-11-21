@@ -2,6 +2,7 @@
 // 필요한 파일 포함
 require 'db_connection.php'; // DB 연결 ($pdo)
 require 'vendor/autoload.php'; // Composer 라이브러리
+require_once 'config.php'; // 추가 설정 파일
 
 // JWT 네임스페이스 사용
 use Firebase\JWT\JWT;
@@ -14,9 +15,6 @@ if (empty($data->email) || empty($data->password)) {
     echo json_encode(['success' => false, 'message' => '이메일과 비밀번호를 모두 입력해주세요']);
     exit;
 }
-
-// JWT 비밀 키
-define('JWT_SECRET_KEY', 'your_key_here');
 
 $email = $data->email;
 $password = $data->password;
@@ -43,18 +41,21 @@ try {
 
     // 5. 로그인 성공: JWT 토큰 생성
     $issued_at = time();
-    $expiration_time = $issued_at + (60 * 60 * 24); // 토큰 만료 시간 (예: 24시간)
+    $expiration_time = $issued_at + (60 * 60 * 24 * 365); // 토큰 만료 시간 (현재: 1년)
     $issuer = "http://localhost/my_fitness_partner"; // 토큰 발급자 (도메인)
+    $token_id = uniqid('', true); // 토큰의 고유 ID 생성
 
     $payload = [
         'iat' => $issued_at, // 토큰 발급 시간
         'exp' => $expiration_time, // 토큰 만료 시간
         'iss' => $issuer, // 토큰 발급자
+        "jti" => $token_id, // 로그인 토큰의 고유 id
         // 실제 사용할 사용자 데이터
         'data' => [
             'userId' => $user['user_id'],
             'email' => $user['email']
         ]
+
     ];
 
     // JWT 생성
