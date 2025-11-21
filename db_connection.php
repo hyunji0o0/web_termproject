@@ -1,9 +1,11 @@
 <?php
 // XAMPP DB 연결 설정
-$host = 'localhost'; // XAMPP 기본 호스트
-$db_name = 'db_signup'; // 4단계에서 만든 데이터베이스 이름
-$username = 'root'; // XAMPP 기본 사용자 이름
-$password = ''; // XAMPP 기본 비밀번호
+require_once 'config.php'; // 추가 설정 파일
+
+$host = DB_HOST; // XAMPP 기본 호스트
+$db_name = DB_NAME; // 데이터베이스 이름
+$username = DB_USER; // XAMPP 기본 사용자 이름
+$password = DB_PASSWORD; // XAMPP 기본 비밀번호
 $charset = 'utf8mb4'; // 한글 깨짐 방지
 
 // PDO 연결 시도
