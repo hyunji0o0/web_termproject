@@ -1,7 +1,7 @@
 <?php
 // 필요한 파일 포함
-require 'db_connection.php';
-require 'mailer.php'; // sendVerificationEmail 함수 사용
+require_once 'db_connection.php';
+require_once 'mailer.php'; // sendVerificationEmail 함수 사용
 
 // 1. React로부터 JSON 입력을 받음
 $data = json_decode(file_get_contents('php://input'));
