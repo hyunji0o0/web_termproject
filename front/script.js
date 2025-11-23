@@ -131,5 +131,33 @@ function calculateActivity() {
 
 }
 
+//영양성분-페이지 고르기에서 페이지 늘리는 함수
+function createPageOptions(maxPage = 10) {
+    const pageSelect = document.getElementById("page-select");
+    pageSelect.innerHTML = "";
 
+    const defaultOpt = document.createElement("option");
+    defaultOpt.value = "";
+    defaultOpt.textContent = "- 선택 -";
+    pageSelect.appendChild(defaultOpt);
+
+    for (let i = 1; i <= maxPage; i++) {
+        const opt = document.createElement("option");
+        opt.value = i;
+        opt.textContent = `${i}`;
+        pageSelect.appendChild(opt);
+    }
+}
+
+// 페이지 개수 설정 (원하는 갯수 만큼 입력하세요)
+createPageOptions(10);
+
+// 음식 칼로리 → 오늘의 섭취량 반영
+function addToIntake() {
+    const foodKcal = parseFloat(document.getElementById("food-calorie-value").textContent);
+    const current = parseFloat(document.getElementById("today-intake-kcal").textContent);
+
+    const updated = current + foodKcal;
+    document.getElementById("today-intake-kcal").textContent = updated;
+}
 

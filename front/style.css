@@ -362,4 +362,33 @@ body.main-page {
     width: 100%
 }
 
+/*영양성분 스타일 부분*/
+/* 검색 박스 전체 3개 가로 정렬 */
+.search-grid {
+    width: 95%;
+    max-width: 1400px;
+    
+    display: flex;
+    gap: 30px;
+    justify-content: space-between;
+}
+
+/* 검색 박스 (기존 card 스타일 그대로 상속) */
+.search-box {
+    flex: 1;
+    min-height: 200px;
+}
+
+.nutrition-result {
+    width: 90%;
+    max-width: 1400px;
+    padding: 30px;
+    background: #f8f6ff;
+    border-radius: 25px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+}
+
+#activity-section {
+    margin-top: 120px;
+}
 
