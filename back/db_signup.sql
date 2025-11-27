@@ -33,12 +33,4 @@ CREATE TABLE revoked_tokens (
     jti VARCHAR(255) PRIMARY KEY,
     expires_at INT NOT NULL
 )
-COMMENT='만료된 토큰 저장 및 관리';
-
-CREATE TABLE dev_tokens (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    user_email VARCHAR(255) NOT NULL,
-    token TEXT NOT NULL,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-)
-COMMENT='로그인 후 발급되는 토큰 저장';
+COMMENT='로그인 토큰 저장 및 관리';
