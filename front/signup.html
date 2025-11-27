@@ -19,7 +19,7 @@
         <div class="input-group">
             <label>이메일</label>
             <div class="email-row">
-                <input type="email" id="signup-email" placeholder="example@mail.com">
+                <input type="email" id="signup-email" placeholder="example@naver.com">
                 <button class="verify-btn" onclick="sendCode()">인증번호 보내기</button>
             </div>
         </div>
@@ -76,6 +76,108 @@ function signUp() {
 
     window.location.href = "user.html";
 }
+
+let emailVerified = false;
+
+// 1. 인증번호 보내기
+function sendCode() {
+    const email = document.getElementById("signup-email").value.trim();
+
+    if (!email) {
+        alert("이메일을 입력해주세요.");
+        return;
+    }
+
+    fetch("../back/send-verification.php", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: email })
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.success) {
+            alert("인증번호가 이메일로 발송되었습니다!");
+        } else {
+            alert("인증번호 발송 실패: " + data.message);
+        }
+    })
+    .catch(err => {
+        alert("서버 오류 발생: " + err);
+    });
+}
+
+
+// 2. 인증번호 확인
+function checkCode() {
+    const email = document.getElementById("signup-email").value.trim();
+    const code = document.getElementById("signup-code").value.trim();
+
+    if (!code) {
+        alert("인증번호를 입력해주세요.");
+        return;
+    }
+
+    fetch("../verify.php", {
+        method: "POST",
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        body: `email=${encodeURIComponent(email)}&code=${encodeURIComponent(code)}`
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.success) {
+            emailVerified = true;
+            alert("이메일 인증 성공!");
+        } else {
+            alert("인증 실패: " + data.message);
+        }
+    })
+    .catch(err => {
+        alert("서버 오류 발생: " + err);
+    });
+}
+
+
+// 3. 최종 회원가입
+function signUp() {
+    const email = document.getElementById("signup-email").value.trim();
+    const name = document.getElementById("signup-name").value.trim();
+    const pw1 = document.getElementById("signup-password").value;
+    const pw2 = document.getElementById("signup-password2").value;
+
+    if (!email || !name || !pw1 || !pw2) {
+        alert("모든 정보를 입력해주세요!");
+        return;
+    }
+
+    if (!emailVerified) {
+        alert("이메일 인증을 먼저 완료해주세요!");
+        return;
+    }
+
+    if (pw1 !== pw2) {
+        alert("비밀번호가 일치하지 않습니다.");
+        return;
+    }
+
+    fetch("../register.php", {
+        method: "POST",
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        body: `email=${encodeURIComponent(email)}&password=${encodeURIComponent(pw1)}&name=${encodeURIComponent(name)}`
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.success) {
+            alert("회원가입이 완료되었습니다! 로그인해주세요.");
+            window.location.href = "login.html";
+        } else {
+            alert("회원가입 실패: " + data.message);
+        }
+    })
+    .catch(err => {
+        alert("서버 오류 발생: " + err);
+    });
+}
+
 </script>
 
 </body>
