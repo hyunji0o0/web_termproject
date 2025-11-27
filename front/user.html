@@ -68,14 +68,47 @@ function finishSignUp() {
     const age = document.getElementById("age").value.trim();
     const gender = document.querySelector("input[name='gender']:checked");
 
+    const email = localStorage.getItem("signup_email"); // register에서 저장한 메일
+
     if (!height || !weight || !age || !gender) {
         alert("필수 항목을 모두 입력해주세요!");
         return;
     }
 
-    alert("회원가입이 완료되었습니다.");
-    window.location.href = "home.html";
+    if (!email) {
+        alert("이메일 정보가 없습니다. 회원가입을 다시 진행해주세요.");
+        return;
+    }
+
+    fetch("../back/update_profile.php", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+            email: email,
+            height: height,
+            weight: weight,
+            age: age,
+            gender: gender.value
+        })
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.success) {
+            alert("추가 정보 저장이 완료되었습니다!");
+
+            // signup_email 제거 (더 이상 필요 없음)
+            localStorage.removeItem("signup_email");
+
+            window.location.href = "home.html";
+        } else {
+            alert("저장 실패: " + data.message);
+        }
+    })
+    .catch(err => {
+        alert("서버 오류: " + err);
+    });
 }
+
 </script>
 
 </body>

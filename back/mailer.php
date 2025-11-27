@@ -4,7 +4,7 @@ use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;
 
 // Composer의 autoload 파일 로드
-require_once 'vendor/autoload.php';
+require_once __DIR__ . '/../vendor/autoload.php';
 require_once 'config.php'; // 추가 설정 파일
 
 // 네이버 SMTP를 사용해 인증 메일을 발송

@@ -45,9 +45,34 @@
         <div class="input-group">
             <label>비밀번호 확인</label>
             <input type="password" id="signup-password2" placeholder="비밀번호 재입력">
+            <button class="verify-btn" onclick="checkPasswordMatch()">비밀번호 확인</button>
+            <p id="pw-check-message" style="margin-top:10px; font-size:0.9rem;"></p>
+        </div>
+        
+        <div class="input-group">
+            <label>키 (cm) *</label>
+            <input type="number" id="height">
         </div>
 
-        <button class="login-btn" onclick="signUp()">다음 ✓</button>
+        <div class="input-group">
+            <label>몸무게 (kg) *</label>
+            <input type="number" id="weight">
+        </div>
+
+        <div class="input-group">
+            <label>나이 *</label>
+            <input type="number" id="age">
+        </div>
+
+        <div class="input-group">
+            <label>성별 *</label>
+            <label><input type="radio" name="gender" value="male"> 남성</label>
+            <label><input type="radio" name="gender" value="female"> 여성</label>
+        </div>
+
+
+
+        <button class="login-btn" onclick="signUp()">완료 ✓</button>
 
         <div class="login-bottom">
             <p>이미 계정이 있으신가요? <a href="login.html">로그인</a></p>
@@ -58,23 +83,24 @@
 </div>
 
 <script>
-function signUp() {
-    const email = document.getElementById("signup-email").value.trim();
-    const name = document.getElementById("signup-name").value.trim();
+function checkPasswordMatch() {
     const pw1 = document.getElementById("signup-password").value;
     const pw2 = document.getElementById("signup-password2").value;
+    const message = document.getElementById("pw-check-message");
 
-    if (!email || !name || !pw1 || !pw2) {
-        alert("모든 정보를 입력해주세요!");
+    if (!pw1 || !pw2) {
+        message.style.color = "#d9534f";
+        message.textContent = "비밀번호를 먼저 입력해주세요!";
         return;
     }
 
-    if (pw1 !== pw2) {
-        alert("비밀번호가 일치하지 않습니다.");
-        return;
+    if (pw1 === pw2) {
+        message.style.color = "#28a745";   // 초록색
+        message.textContent = "비밀번호가 일치합니다!";
+    } else {
+        message.style.color = "#d9534f";   // 빨간색
+        message.textContent = "비밀번호가 일치하지 않습니다.";
     }
-
-    window.location.href = "user.html";
 }
 
 let emailVerified = false;
@@ -91,19 +117,22 @@ function sendCode() {
     fetch("../back/send-verification.php", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email: email })
+        body: JSON.stringify({ email })
     })
-    .then(res => res.json())
-    .then(data => {
-        if (data.success) {
-            alert("인증번호가 이메일로 발송되었습니다!");
-        } else {
-            alert("인증번호 발송 실패: " + data.message);
+    .then(res => res.text())
+    .then(text => {
+        try {
+            const data = JSON.parse(text);
+            if (data.success) {
+                alert("인증번호가 이메일로 발송되었습니다!");
+            } else {
+                alert("인증번호 발송 실패: " + data.message);
+            }
+        } catch {
+            alert("서버 응답: " + text);
         }
     })
-    .catch(err => {
-        alert("서버 오류 발생: " + err);
-    });
+    .catch(err => alert("서버 오류 발생: " + err));
 }
 
 
@@ -117,35 +146,43 @@ function checkCode() {
         return;
     }
 
-    fetch("../verify.php", {
+    fetch("../back/verify.php", {
         method: "POST",
-        headers: { "Content-Type": "application/x-www-form-urlencoded" },
-        body: `email=${encodeURIComponent(email)}&code=${encodeURIComponent(code)}`
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, code })
     })
-    .then(res => res.json())
-    .then(data => {
-        if (data.success) {
-            emailVerified = true;
-            alert("이메일 인증 성공!");
-        } else {
-            alert("인증 실패: " + data.message);
+    .then(res => res.text())
+    .then(text => {
+        try {
+            const data = JSON.parse(text);
+            if (data.success) {
+                alert("인증 성공!");
+                emailVerified = true;
+            } else {
+                alert("인증 실패: " + data.message);
+            }
+        } catch {
+            alert("서버 응답: " + text);
         }
     })
-    .catch(err => {
-        alert("서버 오류 발생: " + err);
-    });
+    .catch(err => alert("서버 오류 발생: " + err));
 }
 
 
-// 3. 최종 회원가입
+// 3. 회원가입 (정보 모두 register.php로 전송)
 function signUp() {
     const email = document.getElementById("signup-email").value.trim();
     const name = document.getElementById("signup-name").value.trim();
     const pw1 = document.getElementById("signup-password").value;
     const pw2 = document.getElementById("signup-password2").value;
 
-    if (!email || !name || !pw1 || !pw2) {
-        alert("모든 정보를 입력해주세요!");
+    const height = document.getElementById("height").value.trim();
+    const weight = document.getElementById("weight").value.trim();
+    const age = document.getElementById("age").value.trim();
+    const gender = document.querySelector("input[name='gender']:checked");
+
+    if (!email || !name || !pw1 || !pw2 || !height || !weight || !age || !gender) {
+        alert("모든 필수 항목을 입력해주세요!");
         return;
     }
 
@@ -159,25 +196,30 @@ function signUp() {
         return;
     }
 
-    fetch("../register.php", {
+    fetch("../back/register.php", {
         method: "POST",
-        headers: { "Content-Type": "application/x-www-form-urlencoded" },
-        body: `email=${encodeURIComponent(email)}&password=${encodeURIComponent(pw1)}&name=${encodeURIComponent(name)}`
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+            email: email,
+            password: pw1,
+            name: name,
+            height: height,
+            weight: weight,
+            age: age,
+            gender: gender.value
+        })
     })
     .then(res => res.json())
     .then(data => {
         if (data.success) {
-            alert("회원가입이 완료되었습니다! 로그인해주세요.");
+            alert("회원가입이 모두 완료되었습니다!");
             window.location.href = "login.html";
         } else {
             alert("회원가입 실패: " + data.message);
         }
     })
-    .catch(err => {
-        alert("서버 오류 발생: " + err);
-    });
+    .catch(err => alert("서버 오류 발생: " + err));
 }
-
 </script>
 
 </body>
