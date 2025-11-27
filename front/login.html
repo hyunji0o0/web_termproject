@@ -27,7 +27,7 @@
             <input type="password" id="login-password" placeholder="비밀번호 입력">
         </div>
 
-        <button class="login-btn">로그인 하기 ✓</button>
+        <button class="login-btn" onclick="login()">로그인 하기 ✓</button>
 
         <div class="login-bottom">
             <p>아직 회원이 아니신가요? <a href="signup.html">회원가입</a></p>
@@ -35,6 +35,50 @@
 
     </div>
 </div>
+<script>
+// 로그인 함수
+function login() {
+    const email = document.getElementById("login-email").value.trim();
+    const password = document.getElementById("login-password").value;
+
+    if (!email || !password) {
+        alert("이메일과 비밀번호를 입력해주세요!");
+        return;
+    }
+
+    fetch("../back/login.php", {
+        method: "POST",
+        headers: { 
+            "Content-Type": "application/json" 
+        },
+        body: JSON.stringify({ email, password })
+    })
+    .then(res => res.text())
+    .then(text => {
+        try {
+            const data = JSON.parse(text);
+
+            if (data.success) {
+                alert("로그인 성공!");
+
+                // 🔥 JWT 토큰 저장
+                localStorage.setItem("token", data.token);
+
+                // 홈페이지로 이동
+                window.location.href = "home.html";
+            } else {
+                alert("로그인 실패: " + data.message);
+            }
+        } catch (e) {
+            alert("서버 응답 오류: " + text);
+        }
+    })
+    .catch(err => {
+        alert("서버 오류 발생: " + err);
+    });
+}
+</script>
+
 
 </body>
 </html>
