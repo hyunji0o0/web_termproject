@@ -1,0 +1,394 @@
+body, html {
+    margin: 0;
+    padding: 0;
+    overflow-x: hidden;
+    font-family: "Pretendard", sans-serif;
+    scroll-behavior: smooth;
+    
+}
+
+body::-webkit-scrollbar {
+    display: none;
+}
+body {
+    scrollbar-width: none;
+    position: relative;
+}
+
+body.login-page {
+    height: 100vh;
+    overflow-y: hidden;
+}
+
+body.main-page {
+    height: 200vh;
+}
+
+#white-section {
+    width: 100%;
+    background: white;
+    padding: 60px 30px;
+    min-height: 150vh;
+    margin-top: 10vh;
+    transform: translateY(50px);
+    transition: transform 0.7s ease;
+}
+
+
+#white-section.active {
+    transform: translateY(0);
+}
+
+.title-box h1 {
+    font-size: 4rem;
+    margin: 40px 0 0 0;
+    font-weight: 800;
+    color: white;
+}
+
+.title-box {
+    position: relative;
+    z-index: 10;
+    text-align: center;
+    margin-top: 120px;
+}
+
+.gradient-buttons {
+    margin-top: 30px;
+    display: flex;
+    gap: 20px;
+    justify-content: center;
+}
+
+.gradient-buttons button {
+    background: rgba(255, 255, 255, 0.25);
+    border: none;
+    padding: 12px 28px;
+    font-size: 1.2rem;
+    color: white;
+    border-radius: 16px;
+    cursor: pointer;
+    backdrop-filter: blur(8px);
+    transition: 0.25s ease;
+}
+
+.gradient-buttons button:hover {
+    background: rgba(255, 255, 255, 0.45);
+    transform: translateY(-4px);
+}
+
+.login-link {
+    position: absolute;
+    top: 20px;
+    right: 30px;
+    color: white;
+    font-size: 1.2rem;
+    font-weight: 600;
+    text-decoration: underline;
+    cursor: pointer;
+    z-index: 2000;
+    transition: 0.25s ease;
+}
+
+.login-link:hover {
+    color: #f5f5f5;
+    text-decoration-thickness: 2px;
+    transform: translateY(-2px);
+}
+
+.section-title {
+    text-align: left;
+    font-size: 2.5rem;
+    font-weight: 800;
+    color: #6A48D7;
+    margin-bottom: 40px;
+}
+
+.calculator-container {
+    width: 90%;
+    max-width: 1400px;
+    margin: 20px;
+    margin-bottom: 100px;
+    display: flex;
+    gap: 40px;
+    justify-content: space-between;
+}
+
+.card {
+    flex: 1;
+    background: #f8f6ff;
+    padding: 30px;
+    border-radius: 25px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+}
+
+.calc-title {
+    font-size: 1.7rem;
+    margin-bottom: 20px;
+    color: #7649C9;
+}
+
+.input-group {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 15px;
+}
+
+.input-group label {
+    margin-bottom: 5px;
+    color: #4A2BA0;
+    font-weight: 600;
+}
+
+.input-group input,
+.input-group select {
+    padding: 12px;
+    border: 1.5px solid #c7b6ff;
+    border-radius: 12px;
+    background: white;
+    font-size: 1rem;
+    outline: none;
+}
+
+.input-row {
+    display: flex;
+    gap: 15px;
+}
+
+.calc-btn {
+    margin-top: 15px;
+    padding: 14px 10px;
+    background: #8F5BFF;
+    border: none;
+    color: white;
+    border-radius: 14px;
+    font-size: 1.2rem;
+    width: 100%;
+    cursor: pointer;
+    transition: 0.25s ease;
+}
+
+.calc-btn:hover {
+    background: #A67CFF;
+    transform: translateY(-3px);
+}
+
+.calc-result {
+    margin-top: 20px;
+    background: white;
+    padding: 20px;
+    border-radius: 20px;
+    text-align: center;
+    color: #7649C9;
+    box-shadow: 0 2px 14px rgba(0,0,0,0.07);
+}
+
+.calc-result span {
+    display: block;
+    margin-top: 7px;
+    font-size: 2rem;
+    font-weight: 800;
+    color: #8F5BFF;
+}
+
+.bmi-status-box {
+    margin-top: 20px;
+    background: white;
+    padding: 18px;
+    border-radius: 20px;
+    text-align: center;
+    color: #7649C9;
+    font-size: 1.3rem;
+    box-shadow: 0 2px 14px rgba(0,0,0,0.07);
+}
+
+#bmi-status-text {
+    font-size: 1.2rem;
+    font-weight: 600;
+}
+
+/*로그인 부분*/
+/* 로그인 배경 (그라데이션 유지) */
+.login-bg {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100vh;
+    background: linear-gradient(180deg, #A67CFF, #B6C9FF, #E9F2FF);
+    z-index: -1;
+}
+
+/* 로그인 전체 중앙 정렬 */
+.login-container {
+    width: 100%;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    color: #7649C9;
+}
+
+/* 제목 */
+.login-title {
+    font-size: 2.5rem;
+    font-weight: 800;
+    margin-bottom: 30px;
+}
+
+/* 로그인 박스 */
+.login-box {
+    width: 90%;
+    max-width: 420px;
+    background: #f8f6ff;
+    padding: 35px;
+    border-radius: 25px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+}
+
+/* 공통 input 스타일 */
+.login-box .input-group {
+    margin-bottom: 20px;
+    display: flex;
+    flex-direction: column;
+}
+
+.login-box .input-group label {
+    color: #4A2BA0;
+    margin-bottom: 6px;
+    font-weight: 600;
+}
+
+.login-box input {
+    padding: 14px;
+    font-size: 1rem;
+    border-radius: 12px;
+    border: 1.5px solid #c7b6ff;
+    background: white;
+    outline: none;
+}
+
+/* 로그인 버튼 */
+.login-btn {
+    width: 100%;
+    margin-top: 10px;
+    padding: 15px 0;
+    background: #8F5BFF;
+    border: none;
+    border-radius: 12px;
+    color: white;
+    font-size: 1.2rem;
+    cursor: pointer;
+    transition: .25s ease;
+}
+
+.login-btn:hover {
+    background: #A67CFF;
+    transform: translateY(-3px);
+}
+
+/* 아래 링크 */
+.login-bottom {
+    margin-top: 22px;
+    text-align: center;
+    font-size: 0.95rem;
+}
+
+.login-bottom a {
+    color: #7649C9;
+    font-weight: 600;
+    text-decoration: underline;
+}
+
+.back-btn {
+    position: absolute;
+    top: 25px;
+    left: 25px;
+    padding: 10px 18px;
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.25);
+    backdrop-filter: blur(8px);
+    color: white;
+    font-size: 1rem;
+    font-weight: 600;
+    text-decoration: none;
+    cursor: pointer;
+    transition: 0.25s ease;
+    z-index: 2000;
+}
+
+.back-btn:hover {
+    background: rgba(255, 255, 255, 0.45);
+    transform: translateY(-3px);
+}
+
+.email-row {
+    display: flex;
+    gap: 10px;
+}
+
+.verify-btn {
+    width: 140px;
+    background: #8F5BFF;
+    border: none;
+    color: white;
+    border-radius: 12px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    padding: 10px;
+    transition: 0.25s ease;
+}
+
+.verify-btn:hover {
+    background: #A67CFF;
+    transform: translateY(-2px);
+}
+
+.gender-row {
+    display: flex;
+    gap: 15px;
+    margin-top: 8px;
+}
+
+.gender-row label {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 15px;
+}
+
+.activity-box {
+    margin: 20px;
+    max-width: 1250px;
+    width: 100%
+}
+
+/*영양성분 스타일 부분*/
+/* 검색 박스 전체 3개 가로 정렬 */
+.search-grid {
+    width: 95%;
+    max-width: 1400px;
+    
+    display: flex;
+    gap: 30px;
+    justify-content: space-between;
+}
+
+/* 검색 박스 (기존 card 스타일 그대로 상속) */
+.search-box {
+    flex: 1;
+    min-height: 200px;
+}
+
+.nutrition-result {
+    width: 90%;
+    max-width: 1400px;
+    padding: 30px;
+    background: #f8f6ff;
+    border-radius: 25px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+}
+
+#activity-section {
+    margin-top: 120px;
+}
+
