@@ -144,7 +144,7 @@ function addToIntake() {
 /** ================= Nutrition Search + Plate ================== */
 
 // 1) 환경별 API 엔드포인트
-const NUTRI_API = 'http://localhost/dashboard/web_termproject-main/back/search.php'; // 🔧 로컬 XAMPP
+const NUTRI_API = 'http://localhost/dashboard/web_termproject/back/search.php'; // 🔧 로컬 XAMPP
 
 // 2) DOM 참조 (기존 HTML id 활용)
 const $cat = document.getElementById('food-category'); // raw/processed/meal
