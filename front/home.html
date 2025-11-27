@@ -224,26 +224,22 @@
 </div>
 </div>
 <script>
-// 홈 화면 로드 시 로그인 상태 확인
+// 1. 홈 화면 로드 시 로그인 상태 확인
 document.addEventListener("DOMContentLoaded", () => {
 
     const token = localStorage.getItem("token");
 
-    // 🔸 ① 토큰이 없을 경우 → 로그인 버튼 그대로 두고 아무 동작 안 함
-    if (!token) {
-        console.log("비로그인 상태로 홈 화면 표시");
-        return;
-    }
 
-    // 🔸 ② 토큰이 있을 경우 → 로그인 버튼 → 로그아웃으로 변경
+
+    // 로그인 되어 있으면 로그인 링크 → 로그아웃 링크로 변경
     const loginLink = document.querySelector(".login-link");
-    if (loginLink) {
+    if (token && loginLink) {
         loginLink.textContent = "로그아웃";
         loginLink.href = "#";
         loginLink.onclick = logout;
     }
 
-    // 🔸 ③ 백엔드로 사용자 정보 요청
+    // 2. 토큰을 보내서 사용자 정보 요청
     fetch("../back/request_user_info.php", {
         method: "POST",
         headers: {
@@ -254,36 +250,23 @@ document.addEventListener("DOMContentLoaded", () => {
     .then(res => res.json())
     .then(data => {
         if (!data.success) {
-            console.log("토큰 만료 → 로그인 상태 해제");
-            logout(false); // 팝업 없이 조용히 로그아웃 처리
-            return;
-        }
-
-        // 🔸 ④ 사용자 정보 표시 예시
-        if (data.user) {
-            console.log("로그인 사용자:", data.user);
-
-            // 예시: BMI 표시
-            if (data.user.bmi) {
-                document.getElementById("today-bmi").textContent = data.user.bmi;
-            }
+            console.log("토큰 만료 → 비로그인 모드로 전환");
+            localStorage.removeItem("token"); // 강제 로그아웃
+            return;   // 에러 알림 금지
         }
     })
     .catch(err => {
-        console.error(err);
-        logout(false);
+        console.error("요청 오류:", err);
     });
 });
 
 
-// 로그아웃 함수 (팝업 없이 조용히 처리)
-function logout(showAlert = true) {
+// 4. 로그아웃 기능
+function logout() {
     localStorage.removeItem("token");
-    if (showAlert) alert("로그아웃 되었습니다.");
-    window.location.href = "login.html";
+    window.location.href = "home.html";
 }
 </script>
-
 
 
 <script src="script.js"></script>
