@@ -34,10 +34,10 @@ try {
     }
 
     // 4. 이메일 인증 여부 확인
-    if ($user['is_verified'] == 0) {
+    /*if ($user['is_verified'] == 0) {
         echo json_encode(['success' => false, 'message' => '아직 이메일 인증이 완료되지 않았습니다.']);
         exit;
-    }
+    }*/
 
     // 5. 로그인 성공: JWT 토큰 생성
     $issued_at = time();

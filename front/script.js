@@ -1,6 +1,6 @@
 /*API 경로 설정 및 토큰 가져오기*/
 // 본인의 로컬 경로에 맞게 수정
-const BASE_URL = 'http://localhost/my_fitness_partner/back';
+const BASE_URL = 'http://localhost/web_termproject/back';
 
 // 토큰 가져오기 헬퍼
 function getToken() {
@@ -13,6 +13,42 @@ function logout() {
     alert('로그아웃 되었습니다.');
     window.location.href = 'login.html';
 }
+
+/* 로그인 유저 정보 불러오기 → 버튼에 표시 */
+async function loadUserProfile() {
+    const token = getToken();
+    if (!token) return;
+
+    try {
+        const res = await fetch(`${BASE_URL}/request_user_info.php`, {
+            method: 'POST',
+            headers: {
+                "Authorization": `Bearer ${token}`,
+                "Content-Type": "application/json"
+            }
+        });
+
+        const json = await res.json();
+
+        if (!json.success) return;
+
+        const user = json.data;  // ← ★ 여기! json.user 아님, json.data임
+
+        // 버튼 내용 업데이트
+        document.querySelector(".gradient-buttons button:nth-child(1)").textContent =
+            `이름: ${user.name ?? '-'}`;
+
+        document.querySelector(".gradient-buttons button:nth-child(2)").textContent =
+            `키: ${user.height ?? '-'} cm`;
+
+        document.querySelector(".gradient-buttons button:nth-child(3)").textContent =
+            `몸무게: ${user.weight ?? '-'} kg`;
+
+    } catch (e) {
+        console.error("사용자 정보 로딩 실패:", e);
+    }
+}
+
 
 // 상단 로그인/로그아웃 버튼 관리
 document.addEventListener("DOMContentLoaded", () => {
@@ -27,6 +63,7 @@ document.addEventListener("DOMContentLoaded", () => {
         });
         // 로그인 되었다면 오늘의 데이터 불러오기
         loadDailySummary();
+        loadUserProfile();
     } else {
         authLink.textContent = '로그인';
         authLink.href = 'login.html';
@@ -209,30 +246,6 @@ window.addEventListener("DOMContentLoaded", () => {
     }
 });
 
-
-// 기초대사량/BMI 버튼 클릭 →  기초대사량/bmi 로 이동
-document.querySelector(".gradient-buttons button:nth-child(1)")
-    .addEventListener("click", () => {
-        document.getElementById("bmi-section").scrollIntoView({
-            behavior: "smooth"
-        });
-    });
-
-// 식품영양성분 계산 버튼 클릭 → 영양성분 계산으로 이동
-document.querySelector(".gradient-buttons button:nth-child(2)")
-    .addEventListener("click", () => {
-        document.getElementById("food-section").scrollIntoView({
-            behavior: "smooth"
-        });
-    });
-
-// 활동대사량 버튼 클릭 →  활동대사량 계산기로 이동
-document.querySelector(".gradient-buttons button:nth-child(3)")
-    .addEventListener("click", () => {
-        document.getElementById("activity-section").scrollIntoView({
-            behavior: "smooth"
-        });
-    });
 
 function calculateActivity() {
     const weight = parseFloat(document.getElementById("activity-weight").value);
@@ -526,6 +539,12 @@ function resetAndSearch() {
 
   const dataCd = toDataCd($cat.value || 'raw');
   const foodNm = ($kwd.value || '').trim();
+
+  if (!foodNm) {
+    $foodList.innerHTML = '<div class="empty">검색어를 입력하세요.</div>';
+    $foodDetail.innerHTML = '<div class="empty">항목을 선택하면 상세가 표시됩니다.</div>';
+    return;
+  }
   foodState.query = { dataCd, foodNm, pageNo: 1, numOfRows: 10 };
 
   $foodList.innerHTML = '<div class="loading">검색 중...</div><div id="food-sentinel"></div>';

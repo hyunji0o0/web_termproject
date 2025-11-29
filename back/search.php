@@ -1,7 +1,7 @@
 <?php
 // CORS가 필요하면 아래 두 줄 주석 해제 (다른 포트/도메인에서 호출 시)
-// header('Access-Control-Allow-Origin: *');
-// header('Access-Control-Allow-Headers: Content-Type');
+header('Access-Control-Allow-Origin: *');
+header('Access-Control-Allow-Headers: Content-Type');
 
 header('Content-Type: application/json; charset=utf-8');
 
