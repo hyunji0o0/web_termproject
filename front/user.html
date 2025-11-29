@@ -62,19 +62,62 @@
 </div>
 
 <script>
-function finishSignUp() {
-    const height = document.getElementById("height").value.trim();
-    const weight = document.getElementById("weight").value.trim();
-    const age = document.getElementById("age").value.trim();
-    const gender = document.querySelector("input[name='gender']:checked");
 
-    if (!height || !weight || !age || !gender) {
-        alert("필수 항목을 모두 입력해주세요!");
+async function finishSignUp() {
+    // 1. user.html의 입력값
+    const height = document.getElementById("height").value;
+    const weight = document.getElementById("weight").value;
+    const age = document.getElementById("age").value;
+    const genderEl = document.querySelector("input[name='gender']:checked");
+    const gender = genderEl ? genderEl.value : null;
+
+    // 2. signup.html에서 가져온 값
+    const email = localStorage.getItem('temp_signup_email');
+    const name = localStorage.getItem('temp_signup_name');
+    const password = localStorage.getItem('temp_signup_pw');
+    const code = localStorage.getItem('temp_signup_code');
+
+    if (!email || !password) {
+        alert("잘못된 접근입니다. 처음부터 다시 시도해주세요.");
+        location.href = 'signup.html';
         return;
     }
 
-    alert("회원가입이 완료되었습니다.");
-    window.location.href = "home.html";
+    if (!height || !weight || !age || !gender) {
+        alert("필수 항목을 입력해주세요.");
+        return;
+    }
+
+    // 3. 백엔드 전송
+    const payload = {
+        email, password, name,
+        height, weight, age, gender, code
+    };
+
+    try {
+        const res = await fetch('http://localhost/my_fitness_partner/back/register.php', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify(payload)
+        });
+        const json = await res.json();
+        
+        if (json.success) {
+            alert("회원가입 완료! 로그인해주세요.");
+            // 임시 데이터 삭제
+            localStorage.removeItem('temp_signup_email');
+            localStorage.removeItem('temp_signup_name');
+            localStorage.removeItem('temp_signup_pw');
+            localStorage.removeItem('temp_signup_code');
+
+            window.location.href = "login.html";
+        } else {
+            alert(json.message);
+        }
+    } catch(e) {
+        console.error(e);
+        alert("가입 중 오류 발생");
+    }
 }
 </script>
 
