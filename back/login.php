@@ -69,7 +69,7 @@ try {
     } catch (Exception $e) {
         error_log($e->getMessage());
     }
-    
+
     // 6. 토큰과 함께 성공 응답
     echo json_encode([
         'success' => true,
@@ -87,4 +87,3 @@ catch (Exception $e) {
     // error_log($e->getMessage());
 }
 ?>
-
