@@ -42,3 +42,38 @@ CREATE TABLE dev_tokens (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 )
 COMMENT='로그인 후 발급되는 토큰 저장';
+
+-- 식단 기록 테이블
+CREATE TABLE food_logs (
+    log_id INT AUTO_INCREMENT PRIMARY KEY COMMENT '기록 고유 ID',
+    user_id INT NOT NULL COMMENT '사용자 ID (users 테이블 참조)',
+    
+    food_name VARCHAR(255) NOT NULL COMMENT '음식 이름',
+    intake_weight DECIMAL(10,2) NOT NULL COMMENT '섭취량 (g)',
+    
+    -- 영양 성분 (계산된 결과 저장)
+    kcal DECIMAL(10,2) DEFAULT 0,
+    carb DECIMAL(10,2) DEFAULT 0,
+    protein DECIMAL(10,2) DEFAULT 0,
+    fat DECIMAL(10,2) DEFAULT 0,
+    
+    log_date DATE DEFAULT CURRENT_DATE COMMENT '기록 날짜',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    
+    FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE
+) COMMENT='사용자 식단 섭취 기록';
+
+-- 운동 기록 테이블
+CREATE TABLE activity_logs (
+    log_id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT NOT NULL,
+    
+    activity_name VARCHAR(100) NOT NULL COMMENT '운동 종목 이름',
+    duration_min INT NOT NULL COMMENT '운동 시간(분)',
+    burned_kcal DECIMAL(10,2) NOT NULL COMMENT '소모 칼로리',
+    
+    log_date DATE DEFAULT CURRENT_DATE COMMENT '기록 날짜',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    
+    FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE
+) COMMENT='사용자 활동/운동 기록';
