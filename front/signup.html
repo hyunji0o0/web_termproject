@@ -58,11 +58,87 @@
 </div>
 
 <script>
+    // 백엔드 API 주소 설정 (본인 환경에 맞게 수정)
+    const BASE_URL = 'http://localhost/my_fitness_partner/back'; 
+    
+    // 이메일 인증 완료 여부를 체크하는 변수
+    let isEmailVerified = false; 
+
+    // 1. 인증번호 보내기 함수
+    async function sendCode() {
+        const email = document.getElementById("signup-email").value.trim();
+        
+        if (!email) {
+            alert("이메일을 입력해주세요.");
+            return;
+        }
+
+        try {
+            // 버튼 비활성화 (중복 클릭 방지)
+            const btn = document.querySelector('.verify-btn');
+            btn.disabled = true;
+            btn.textContent = "전송중...";
+
+            const res = await fetch(`${BASE_URL}/send-verification.php`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email: email })
+            });
+            const json = await res.json();
+
+            if (json.success) {
+                alert("인증번호가 메일로 발송되었습니다!");
+            } else {
+                alert("발송 실패: " + json.message);
+            }
+        } catch (e) {
+            console.error(e);
+            alert("서버 통신 오류가 발생했습니다.");
+        } finally {
+            // 버튼 상태 복구
+            const btn = document.querySelector('.verify-btn');
+            btn.disabled = false;
+            btn.textContent = "인증번호 보내기";
+        }
+    }
+
+    // 2. 인증번호 확인 함수
+    async function checkCode() {
+        const email = document.getElementById("signup-email").value.trim();
+        const code = document.getElementById("signup-code").value.trim();
+
+        if (!email || !code) {
+            alert("이메일과 인증번호를 모두 입력해주세요.");
+            return;
+        }
+
+        try {
+            const res = await fetch(`${BASE_URL}/verify.php`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email: email, code: code })
+            });
+            const json = await res.json();
+
+            if (json.success) {
+                alert("인증에 성공했습니다!");
+                isEmailVerified = true; // 인증 성공 플래그 세팅
+            } else {
+                alert("인증 실패: " + json.message);
+                isEmailVerified = false;
+            }
+        } catch (e) {
+            console.error(e);
+            alert("서버 통신 오류가 발생했습니다.");
+        }
+    }
+
 function signUp() {
     const email = document.getElementById("signup-email").value.trim();
     const name = document.getElementById("signup-name").value.trim();
     const pw1 = document.getElementById("signup-password").value;
     const pw2 = document.getElementById("signup-password2").value;
+    const code = document.getElementById("signup-code").value.trim();
 
     if (!email || !name || !pw1 || !pw2) {
         alert("모든 정보를 입력해주세요!");
@@ -73,6 +149,17 @@ function signUp() {
         alert("비밀번호가 일치하지 않습니다.");
         return;
     }
+
+    if (!isEmailVerified) {
+        alert("이메일 인증을 완료해주세요.");
+        return;
+    }
+
+    // 데이터 임시 저장
+    localStorage.setItem('temp_signup_email', email);
+    localStorage.setItem('temp_signup_name', name);
+    localStorage.setItem('temp_signup_pw', pw1);
+    localStorage.setItem('temp_signup_code', code);
 
     window.location.href = "user.html";
 }

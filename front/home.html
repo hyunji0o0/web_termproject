@@ -8,7 +8,8 @@
     <link rel="stylesheet" href="gradient_back.css" />
 </head>
 <body class="main-page">
-<a href="login.html" class="login-link">로그인</a>
+<!--a href="login.html" class="login-link">로그인</a-->
+<a href="#" id="auth-link" class="login-link">로그인</a>
 <div class="gradient-bg"></div>
     
 <div class="title-box">
@@ -173,6 +174,7 @@
       </table>
 
       <button id="btn-plate-calc" class="calc-btn" style="margin-top:8px;">계산하기 ✓</button>
+      <button id="btn-plate-save" class="calc-btn" style="background-color:#4A2BA0; margin-top:8px;">기록 저장하기</button>
       <div id="calc-total-box" class="total-box muted">계산 결과가 여기에 표시됩니다.</div>
     </section>
   </section>
@@ -216,7 +218,8 @@
     </div>
 
     <button class="calc-btn" onclick="calculateActivity()">계산하기 ✓</button>
-
+    <button class="calc-btn" onclick="saveActivity()" style="background-color:#4A2BA0; margin-top:10px;">기록 저장하기</button>
+    
     <div class="calc-result">
         <p>활동대사량</p>
         <span id="activity-value">0</span> kcal

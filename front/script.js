@@ -1,3 +1,145 @@
+/*API 경로 설정 및 토큰 가져오기*/
+// 본인의 로컬 경로에 맞게 수정
+const BASE_URL = 'http://localhost/my_fitness_partner/back';
+
+// 토큰 가져오기 헬퍼
+function getToken() {
+    return localStorage.getItem('mfp_token');
+}
+
+// 로그아웃 로직
+function logout() {
+    localStorage.removeItem('mfp_token');
+    alert('로그아웃 되었습니다.');
+    window.location.href = 'login.html';
+}
+
+// 상단 로그인/로그아웃 버튼 관리
+document.addEventListener("DOMContentLoaded", () => {
+    const authLink = document.getElementById('auth-link');
+    const token = getToken();
+    
+    if (token) {
+        authLink.textContent = '로그아웃';
+        authLink.addEventListener('click', (e) => {
+            e.preventDefault();
+            logout();
+        });
+        // 로그인 되었다면 오늘의 데이터 불러오기
+        loadDailySummary();
+    } else {
+        authLink.textContent = '로그인';
+        authLink.href = 'login.html';
+    }
+});
+
+/* 오늘의 요약 불러오기*/
+async function loadDailySummary() {
+    try {
+        const res = await fetch(`${BASE_URL}/get_daily_summary.php`, {
+            headers: { 'Authorization': `Bearer ${getToken()}` }
+        });
+        const json = await res.json();
+        
+        if (json.success) {
+            // 섭취량 업데이트
+            document.getElementById("today-intake-kcal").textContent = json.intake;
+            // 운동량 업데이트
+            document.getElementById("today-activity-kcal").textContent = json.burned;
+            
+            // BMI 자동 계산 (DB에 정보가 있다면)
+            if (json.user && json.user.height && json.user.weight) {
+                const h = json.user.height / 100;
+                const bmi = (json.user.weight / (h * h)).toFixed(2);
+                document.getElementById("today-bmi").textContent = bmi;
+            }
+        }
+    } catch (e) {
+        console.error("요약 불러오기 실패", e);
+    }
+}
+
+// 식단 저장 버튼 이벤트
+document.getElementById('btn-plate-save').addEventListener('click', async () => {
+    if (!getToken()) {
+        alert("로그인이 필요한 기능입니다.");
+        location.href = 'login.html';
+        return;
+    }
+    if (foodState.plate.length === 0) {
+        alert("접시에 담긴 음식이 없습니다.");
+        return;
+    }
+
+    try {
+        const res = await fetch(`${BASE_URL}/save_food_log.php`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${getToken()}`
+            },
+            body: JSON.stringify({ plate: foodState.plate })
+        });
+        const json = await res.json();
+        if (json.success) {
+            alert("식단이 기록되었습니다!");
+            foodState.plate = []; // 접시 비우기
+            renderPlate();
+            loadDailySummary(); // 상단 요약 갱신
+        } else {
+            alert(json.message);
+        }
+    } catch (e) {
+        console.error(e);
+        alert("저장 중 오류 발생");
+    }
+});
+
+/* 운동 기록 저장 */
+async function saveActivity() {
+    if (!getToken()) {
+        alert("로그인이 필요한 기능입니다.");
+        location.href = 'login.html';
+        return;
+    }
+
+    // 현재 화면에 계산된 값 가져오기
+    const kcal = document.getElementById("activity-value").innerText;
+    const select = document.getElementById("activity-select");
+    const name = select.options[select.selectedIndex].text; // 운동 이름
+    
+    // 시간 계산
+    const h = parseInt(document.getElementById("activity-hour").value);
+    const m = parseInt(document.getElementById("activity-minute").value);
+    const duration = h * 60 + m;
+
+    if (kcal == 0 || duration == 0) {
+        alert("먼저 운동량을 계산해주세요.");
+        return;
+    }
+
+    try {
+        const res = await fetch(`${BASE_URL}/save_activity_log.php`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${getToken()}`
+            },
+            body: JSON.stringify({ name, duration, kcal })
+        });
+        const json = await res.json();
+        if (json.success) {
+            alert("운동이 기록되었습니다!");
+            loadDailySummary(); // 상단 요약 갱신
+        } else {
+            alert(json.message);
+        }
+    } catch (e) {
+        console.error(e);
+        alert("저장 오류");
+    }
+}
+
 const whiteSection = document.getElementById("white-section");
 
 window.addEventListener("scroll", () => {
@@ -144,8 +286,8 @@ function addToIntake() {
 /** ================= Nutrition Search + Plate ================== */
 
 // 1) 환경별 API 엔드포인트
-const NUTRI_API = 'http://localhost/dashboard/web_termproject/back/search.php'; // 🔧 로컬 XAMPP
-
+/*const NUTRI_API = 'http://localhost/my_fitness_partner/back/search.php'*/; // 🔧 로컬 XAMPP
+const NUTRI_API = `${BASE_URL}/search.php`;
 // 2) DOM 참조 (기존 HTML id 활용)
 const $cat = document.getElementById('food-category'); // raw/processed/meal
 const $kwd = document.getElementById('food-search');
