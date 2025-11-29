@@ -36,5 +36,44 @@
     </div>
 </div>
 
+<script>
+document.querySelector('.login-btn').addEventListener('click', async () => {
+    const email = document.getElementById('login-email').value.trim();
+    const password = document.getElementById('login-password').value.trim();
+    
+    // 유효성 검사
+    if (!email || !password) {
+        alert("이메일과 비밀번호를 입력해주세요.");
+        return;
+    }
+
+    // BASE_URL 경로를 본인의 환경에 맞게 수정
+    const BASE_URL = 'http://localhost/my_fitness_partner/back'; 
+
+    try {
+        const res = await fetch(`${BASE_URL}/login.php`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ email, password })
+        });
+        const json = await res.json();
+
+        if (json.success) {
+            // 로그인 성공 시 JWT 토큰 저장 (가장 중요)
+            localStorage.setItem('mfp_token', json.token);
+            alert("로그인 성공! 환영합니다.");
+            window.location.href = 'home.html';
+        } else {
+            alert(json.message);
+        }
+    } catch(e) {
+        console.error(e);
+        alert("로그인 중 오류 발생");
+    }
+});
+</script>
+
 </body>
 </html>
