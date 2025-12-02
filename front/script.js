@@ -671,3 +671,77 @@ document.addEventListener('DOMContentLoaded', () => {
   $cat.addEventListener('change', resetAndSearch);
 });
 
+
+// ========= 모달 요소 ========
+const modal = document.getElementById("update-modal");
+const modalTitle = document.getElementById("modal-title");
+const modalInput = document.getElementById("modal-input");
+const modalSaveBtn = document.getElementById("modal-save-btn");
+const modalCancelBtn = document.getElementById("modal-cancel-btn");
+
+let currentMode = ""; // 'height' 또는 'weight'
+
+// 모달 열기
+function openModal(mode, currentValue) {
+    currentMode = mode;
+
+    modalTitle.textContent = mode === "height" ? "키 수정" : "몸무게 수정";
+    modalInput.value = currentValue || "";
+    modalInput.placeholder = mode === "height" ? "키 (cm)" : "몸무게 (kg)";
+
+    modal.style.display = "flex"; // 화면에 표시
+}
+
+// 모달 닫기
+function closeModal() {
+    modal.style.display = "none";
+}
+
+// 버튼 클릭 → 모달 띄우기
+document.getElementById("btn-user-height").addEventListener("click", () => {
+    const current = document.getElementById("btn-user-height").textContent.replace(/\D+/g, "");
+    openModal("height", current);
+});
+
+document.getElementById("btn-user-weight").addEventListener("click", () => {
+    const current = document.getElementById("btn-user-weight").textContent.replace(/\D+/g, "");
+    openModal("weight", current);
+});
+
+// 취소 버튼
+modalCancelBtn.addEventListener("click", closeModal);
+
+// 저장 버튼
+modalSaveBtn.addEventListener("click", async () => {
+    const value = modalInput.value;
+    if (!value) return alert("값을 입력해주세요!");
+
+    const token = getToken();
+    if (!token) return alert("로그인이 필요합니다.");
+
+    const res = await fetch(`${BASE_URL}/update_profile.php`, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${token}`
+        },
+        body: JSON.stringify({ mode: currentMode, value })
+    });
+
+    const json = await res.json();
+
+    if (json.success) {
+        alert("수정 완료!");
+
+        // 화면에 바로 반영
+        if (currentMode === "height") {
+            document.getElementById("btn-user-height").textContent = `키: ${value} cm`;
+        } else {
+            document.getElementById("btn-user-weight").textContent = `몸무게: ${value} kg`;
+        }
+
+        closeModal();
+    } else {
+        alert(json.message);
+    }
+});

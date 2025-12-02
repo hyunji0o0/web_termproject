@@ -13,6 +13,18 @@
 <div class="gradient-bg"></div>
     
 <div class="title-box">
+        <!-- 키/몸무게 수정 모달, 얘는 위치가 home ui 에 영향을 안줘서 그냥 위에 둬도 괜찮습니다. -->
+    <div id="update-modal" class="modal-overlay">
+        <div class="modal-box">
+            <h3 id="modal-title">수정</h3>
+
+            <input type="number" id="modal-input" placeholder="값을 입력하세요">
+
+            <button id="modal-save-btn">저장하기 ✓</button>
+            <button id="modal-cancel-btn" class="cancel">취소</button>
+        </div>
+    </div>
+
     <h1>마이 피트니스 파트너</h1>
     <div class="gradient-buttons">
         <button id="btn-user-name">이름: -</button>
