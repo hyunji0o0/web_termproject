@@ -95,7 +95,7 @@ async function finishSignUp() {
     };
 
     try {
-        const res = await fetch('http://localhost/my_fitness_partner/back/register.php', {
+        const res = await fetch('http://localhost/web_termproject/back/register.php', {
             method: 'POST',
             headers: {'Content-Type': 'application/json'},
             body: JSON.stringify(payload)
