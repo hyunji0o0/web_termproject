@@ -388,7 +388,15 @@ body.main-page {
     box-shadow: 0 4px 20px rgba(0,0,0,0.08);
 }
 
+.nutrition-layout .panel {
+    width: 100%;
+    max-width: 1300px;
+    margin-top: 20px;
+    
+}
+
 #activity-section {
     margin-top: 120px;
 }
+
 
