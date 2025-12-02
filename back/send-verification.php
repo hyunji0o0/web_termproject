@@ -20,7 +20,7 @@ $email = $data->email;
 $code = (string)rand(100000, 999999);
 
 // 3. 만료 시간 설정
-$expires_at = date('Y-m-d H:i:s', time() + 60); // 1분
+$expires_at = date('Y-m-d H:i:s', time() + 300); // 5분
 
 try {
     // 4. DB에 인증 코드 저장 (이미 이메일이 존재하면 코드와 만료시간 업데이트)
