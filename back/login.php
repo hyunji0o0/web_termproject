@@ -41,8 +41,8 @@ try {
 
     // 5. 로그인 성공: JWT 토큰 생성
     $issued_at = time();
-    $expiration_time = $issued_at + (60 * 60 * 24 * 365); // 토큰 만료 시간 (현재: 1년)
-    $issuer = "http://localhost/my_fitness_partner"; // 토큰 발급자 (도메인)
+    $expiration_time = $issued_at + (60 * 60 * 24); // 토큰 만료 시간 (현재: 1일)
+    $issuer = "http://localhost/web_termproject"; // 토큰 발급자 (도메인)
     $token_id = uniqid('', true); // 토큰의 고유 ID 생성
 
     $payload = [
