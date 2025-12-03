@@ -670,4 +670,3 @@ document.addEventListener('DOMContentLoaded', () => {
   // 카테고리 변경 시도 검색
   $cat.addEventListener('change', resetAndSearch);
 });
-
