@@ -1,7 +1,7 @@
 <?php
 // 필요한 파일 포함
 require 'db_connection.php'; // DB 연결 ($pdo)
-require 'vendor/autoload.php'; // Composer 라이브러리
+require_once __DIR__ . '/../vendor/autoload.php';
 require_once 'config.php'; // 추가 설정 파일
 
 // JWT 네임스페이스 사용
@@ -42,7 +42,7 @@ try {
     // 5. 로그인 성공: JWT 토큰 생성
     $issued_at = time();
     $expiration_time = $issued_at + (60 * 60 * 24); // 토큰 만료 시간 (현재: 1일)
-    $issuer = "http://localhost/web_termproject"; // 토큰 발급자 (도메인)
+    $issuer = "http://localhost/dashboard/web_termproject"; // 토큰 발급자 (도메인)
     $token_id = uniqid('', true); // 토큰의 고유 ID 생성
 
     $payload = [

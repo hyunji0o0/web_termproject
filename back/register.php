@@ -1,7 +1,24 @@
 <?php
 // 이 파일은 신규 회원 정보를 DB에 저장함 (is_verified = 0 상태)
 
-require_once 'db_connection.php';
+require_once __DIR__ . '/db_connection.php'; // $pdo 준비
+
+$pdo->exec("
+  CREATE TABLE IF NOT EXISTS users (
+    user_id INT AUTO_INCREMENT PRIMARY KEY,
+    email VARCHAR(255) NOT NULL UNIQUE,
+    password VARCHAR(255) NOT NULL,
+    name VARCHAR(100) NULL,
+    height DECIMAL(5,2) NULL,
+    weight DECIMAL(5,2) NULL,
+    age INT NULL,
+    gender ENUM('male','female','other') NULL,
+    bmr FLOAT NULL,
+    is_verified TINYINT(1) DEFAULT 0,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+  )
+");
+
 require_once 'config.php'; // 추가 설정 파일
 
 header('Content-Type: application/json');
