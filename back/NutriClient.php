@@ -3,212 +3,151 @@ declare(strict_types=1);
 
 /**
  * NutriClient
- * - dataCd(P/D/R 또는 '가공식품'/'음식'/'원재료성')에 따라 서로 다른 URL로 라우팅
- * - 요청 파라미터는 세 URL에서 동일(예: pageNo, numOfRows, type, foodNm)
- * - dataCd는 쿼리스트링에서 제외함 (URL만 달라짐)
-**/
+ * - dataCd(P/D/R 또는 한글 이름) 에 따라 서로 다른 URL로 라우팅
+ * - 검색 필드(foodNm / foodLv4Nm)를 사용자가 선택할 수 있도록 지원
+ */
 class NutriClient
 {
     private string $serviceKey;
-    /** @var array<string, string|array{url:string, default_type?:string, param_overrides?:array<string,string>}> */
-    private array $endpoints;
-    /** @var array<string,string> */
-    private array $paramNames;
-    private string $globalDefaultType;
+    /** @var array<string,string> dataCd(P/D/R) => endpoint URL */
+    private array $endpoints = [];
+    private int   $timeout   = 10;
+    private string $defaultType = 'json';
 
+    /** 한글/영문 분류 → P/D/R 매핑 */
+    private array $dataCdMap = [
+        'P'        => 'P',
+        'D'        => 'D',
+        'R'        => 'R',
+        '가공식품'  => 'P',
+        '음식'      => 'D',
+        '원재료성'  => 'R',
+        'processed'=> 'P',
+        'meal'     => 'D',
+        'raw'      => 'R',
+    ];
+
+ 
     public function __construct(array $config)
     {
-        $this->serviceKey        = $config['serviceKey'] ?? '';
-        $this->endpoints         = $config['endpoints']  ?? [];
-        $this->paramNames        = $config['param_names'] ?? [];
-        $this->globalDefaultType = $config['default_type'] ?? 'json';
+        if (empty($config['serviceKey'])) {
+            throw new \InvalidArgumentException('serviceKey가 설정되어 있지 않습니다.');
+        }
+        $this->serviceKey = $config['serviceKey'];
 
-        if ($this->serviceKey === '') {
-            throw new \InvalidArgumentException('serviceKey가 비어 있습니다.');
+        if (empty($config['endpoints']) || !is_array($config['endpoints'])) {
+            throw new \InvalidArgumentException('endpoints 설정이 필요합니다.');
+        }
+        // P/D/R 키만 사용
+        foreach ($config['endpoints'] as $k => $url) {
+            $k = strtoupper((string)$k);
+            if (in_array($k, ['P', 'D', 'R'], true)) {
+                $this->endpoints[$k] = (string)$url;
+            }
         }
         if (empty($this->endpoints)) {
-            throw new \InvalidArgumentException('endpoints 설정이 비어 있습니다.');
+            throw new \InvalidArgumentException('P/D/R용 endpoint가 설정되어 있지 않습니다.');
+        }
+
+        if (isset($config['timeout'])) {
+            $this->timeout = (int)$config['timeout'];
+        }
+        if (isset($config['defaultType'])) {
+            $this->defaultType = (string)$config['defaultType'];
         }
     }
 
-    /**
-     * 검색 실행
-     * @param string      $dataCd   'P'|'D'|'R' 또는 '가공식품'|'음식'|'원재료성' (URL 라우팅 전용)
-     * @param string      $foodNm   검색어(필수)
-     * @param int         $pageNo
-     * @param int         $numOfRows
-     * @param string|null $type     응답 포맷 지정(json/xml). 생략 시 엔드포인트 기본값 → 전역 기본값 순
-     * @param array       $opts     동일 파라미터 체계에서 허용되는 추가 옵션
-     * @return array                파싱된 배열(JSON 우선, 실패 시 XML 파싱)
-     */
+
     public function search(
         string $dataCd,
-        string $foodNm,
-        int $pageNo = 1,
-        int $numOfRows = 10,
-        ?string $type = null,
-        array $opts = []
+        string $searchField,
+        string $keyword,
+        int    $pageNo = 1,
+        int    $numOfRows = 10,
+        string $type = 'json'
     ): array {
-        $code = $this->normalizeDataCd($dataCd);
+        $dataCd = $this->normalizeDataCd($dataCd);
 
-        // 1) 엔드포인트/옵션 확정
-        [$baseUrl, $endpointDefaultType, $paramOverrides] = $this->resolveEndpoint($code);
-        $baseUrl = trim($baseUrl);
-        if ($baseUrl === '') {
-            throw new \RuntimeException("엔드포인트를 찾을 수 없습니다(dataCd={$code}).");
+        if (!isset($this->endpoints[$dataCd])) {
+            throw new \InvalidArgumentException("지원하지 않는 dataCd 입니다: {$dataCd}");
+        }
+        $baseUrl = $this->endpoints[$dataCd];
+
+        // 검색 필드 보정
+        $searchField = trim($searchField);
+        if (!in_array($searchField, ['foodNm', 'foodLv4Nm'], true)) {
+            $searchField = 'foodNm';
         }
 
-        // 2) 파라미터 키 구성 (공통)
-        $p = $this->paramNames;
-        $typeKey      = $p['type']      ?? 'type';
-        $pageNoKey    = $p['pageNo']    ?? 'pageNo';
-        $numOfRowsKey = $p['numOfRows'] ?? 'numOfRows';
-        // 엔드포인트별 foodNm 키 오버라이드 가능
-        $foodNmKey    = $paramOverrides['foodNm'] ?? ($p['foodNm'] ?? 'foodNm');
+        $keyword = trim($keyword);
+        if ($keyword === '') {
+            throw new \InvalidArgumentException('검색어를 입력하세요.');
+        }
 
-        // 3) 실제 전송 타입 결정 (엔드포인트 기본 → 전역 기본 → 호출자가 준 값 우선 적용)
-        $finalType = $type ?? $endpointDefaultType ?? $this->globalDefaultType;
+        $pageNo    = max(1, $pageNo);
+        $numOfRows = max(1, $numOfRows);
+        $type      = $type !== '' ? $type : $this->defaultType;
 
-        // 4) 공통 파라미터 준비 (dataCd는 넣지 않음)
-        $queryCommon = [
-            $typeKey      => $finalType,
-            $pageNoKey    => $pageNo,
-            $numOfRowsKey => $numOfRows,
-            $foodNmKey    => $this->requireNonEmpty($foodNm, 'foodNm'),
+        // 공통 파라미터
+        $params = [
+            'serviceKey' => $this->serviceKey,
+            'type'       => $type,
+            'pageNo'     => $pageNo,
+            'numOfRows'  => $numOfRows,
+            // dataCd는 URL로 분기하므로 쿼리스트링에 포함하지 않는다
         ];
-        // 호출자가 준 추가 파라미터 병합
-        foreach ($opts as $k => $v) {
-            if ($v === null || $v === '') continue;
-            $queryCommon[$k] = $v;
+
+        // ✅ 사용자가 선택한 필드를 그대로 사용
+        $params[$searchField] = $keyword;
+
+        $url = $baseUrl . '?' . http_build_query($params, '', '&', PHP_QUERY_RFC3986);
+
+        $body = $this->httpGet($url);
+
+        // JSON 기준으로 파싱 (type이 xml이면 여기서 분기 처리 가능)
+        $json = json_decode($body, true);
+        if ($json === null) {
+            throw new \RuntimeException("응답 파싱 실패: {$body}");
         }
-
-        // 5) URL 조합 (serviceKey는 별도 부착; 재인코딩 방지)
-        $url = $this->buildUrlWithKey($baseUrl, $this->serviceKey, $queryCommon);
-
-        // 6) 요청 및 파싱
-        return $this->requestAndParse($url);
+        return $json;
     }
 
-    // ---------------- 내부 유틸 ----------------
-
-    /** dataCd 정규화: 라벨 → 코드 */
-    private function normalizeDataCd(string $dataCd): string
-    {
-        $v = mb_strtoupper(trim($dataCd), 'UTF-8');
-        if (in_array($v, ['P','D','R'], true)) return $v;
-
-        $k = trim($dataCd);
-        return match ($k) {
-            '가공식품' => 'P',
-            '음식'     => 'D',
-            '원재료성' => 'R',
-            default    => throw new \InvalidArgumentException("dataCd는 P/D/R 또는 '가공식품/음식/원재료성' 중 하나여야 합니다."),
-        };
-    }
-
-    /**
-     * 엔드포인트/옵션 해석
-     * @return array{0:string,1:?string,2:array<string,string>}
-     */
-    private function resolveEndpoint(string $code): array
-    {
-        if (!array_key_exists($code, $this->endpoints)) {
-            throw new \RuntimeException("엔드포인트 설정에 {$code}가 없습니다.");
-        }
-        $e = $this->endpoints[$code];
-
-        if (is_string($e)) {
-            return [$e, null, []]; // url, default_type 없음, overrides 없음
-        }
-        if (is_array($e)) {
-            $url            = $e['url'] ?? '';
-            $defaultType    = $e['default_type'] ?? null;
-            $paramOverrides = $e['param_overrides'] ?? [];
-            if (!is_string($url) || $url === '') {
-                throw new \RuntimeException("엔드포인트 URL이 비어 있습니다(dataCd={$code}).");
-            }
-            return [$url, $defaultType, $paramOverrides];
-        }
-        throw new \RuntimeException("엔드포인트 형식이 올바르지 않습니다(dataCd={$code}).");
-    }
-
-    /**
-     * 서비스키 안전 부착 + 나머지 쿼리 조합
-     * - serviceKey는 이미 인코딩된 경우 그대로 사용, 아니면 rawurlencode 1회
-     * - 나머지 파라미터는 RFC3986로 http_build_query
-     */
-    private function buildUrlWithKey(string $baseUrl, string $serviceKey, array $restParams): string
-    {
-        $baseUrl = trim($baseUrl);
-
-        // serviceKey 인코딩 여부 판단
-        $skIsEncoded = (bool)preg_match('/%[0-9A-Fa-f]{2}/', $serviceKey);
-        $skFinal     = $skIsEncoded ? $serviceKey : rawurlencode($serviceKey);
-
-        // 나머지 쿼리
-        $restQuery = http_build_query($restParams, arg_separator: '&', encoding_type: PHP_QUERY_RFC3986);
-
-        // baseUrl에 기존 쿼리 유무
-        $hasQuery = (parse_url($baseUrl, PHP_URL_QUERY) !== null);
-        $sep = $hasQuery ? '&' : '?';
-
-        $url = $baseUrl . $sep . 'serviceKey=' . $skFinal;
-        if ($restQuery !== '') {
-            $url .= '&' . $restQuery;
-        }
-        return $url;
-    }
-
-    /** HTTP 호출 + JSON→XML 파싱 */
-    private function requestAndParse(string $url): array
+    /** 내부 HTTP GET 호출(cURL) */
+    private function httpGet(string $url): string
     {
         $ch = curl_init($url);
         curl_setopt_array($ch, [
             CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_TIMEOUT        => 20,
-            CURLOPT_CONNECTTIMEOUT => 5,
-            CURLOPT_HTTPHEADER     => [
-                'Accept: application/json, application/xml;q=0.9, */*;q=0.8',
-            ],
+            CURLOPT_TIMEOUT        => $this->timeout,
         ]);
-
-        $body = curl_exec($ch);
-        $code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-        if ($body === false) {
+        $res = curl_exec($ch);
+        if ($res === false) {
             $err = curl_error($ch);
             curl_close($ch);
             throw new \RuntimeException("cURL error: {$err}");
         }
+        $code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
         curl_close($ch);
-
         if ($code < 200 || $code >= 300) {
-            // 서버가 반려한 경우 그대로 본문을 담아 원인 파악 가능
-            throw new \RuntimeException("HTTP {$code} 응답: {$body}");
+            throw new \RuntimeException("HTTP {$code} from API");
         }
-
-        // JSON 시도
-        $data = json_decode($body, true);
-        if (json_last_error() === JSON_ERROR_NONE) {
-            return $data;
-        }
-
-        // XML 폴백
-        $xml = @simplexml_load_string($body);
-        if ($xml !== false) {
-            return json_decode(json_encode($xml), true);
-        }
-
-        throw new \RuntimeException("응답 파싱 실패: {$body}");
+        return $res;
     }
 
-    /** 빈 값 검증 */
-    private function requireNonEmpty(string $value, string $name): string
+    /** dataCd 값을 P/D/R로 정규화 */
+    private function normalizeDataCd(string $dataCd): string
     {
-        $value = trim($value);
-        if ($value === '') {
-            throw new \InvalidArgumentException("{$name}(을)를 입력하세요.");
+        $dataCd = trim($dataCd);
+        if ($dataCd === '') {
+            throw new \InvalidArgumentException('dataCd(P/D/R)를 선택하세요.');
         }
-        return $value;
+        if (isset($this->dataCdMap[$dataCd])) {
+            return $this->dataCdMap[$dataCd];
+        }
+        $upper = strtoupper($dataCd);
+        if (isset($this->dataCdMap[$upper])) {
+            return $this->dataCdMap[$upper];
+        }
+        throw new \InvalidArgumentException("알 수 없는 dataCd: {$dataCd}");
     }
-
 }

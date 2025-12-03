@@ -373,30 +373,120 @@ body.main-page {
     justify-content: space-between;
 }
 
+
 /* 검색 박스 (기존 card 스타일 그대로 상속) */
 .search-box {
     flex: 1;
     min-height: 200px;
 }
 
-.nutrition-result {
-    width: 90%;
-    max-width: 1400px;
-    padding: 30px;
-    background: #f8f6ff;
-    border-radius: 25px;
-    box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+/* 전체 레이아웃 높이(원하는 값으로 조절) */
+:root { --nutri-grid-h: clamp(560px, 78vh, 960px); }
+
+/* 2행×2열: 열은 2:1, 행은 1:1 */
+.nutrition-grid{
+  display: grid;
+  grid-template-columns: 2fr 1fr;           /* 2:1 너비 */
+  grid-template-rows: minmax(0,1fr) minmax(0,1fr); /* 🔑 1:1 높이 + 내부 스크롤 허용 */
+  gap: 16px;
+  height: var(--nutri-grid-h);              /* 전체 높이 고정 */
+  align-items: stretch;
 }
 
-.nutrition-layout .panel {
-    width: 100%;
-    max-width: 1300px;
-    margin-top: 20px;
-    
+/* 각 셀 패널 기본: 내부 넘침을 자식에게 맡김 */
+.nutrition-grid > .panel{
+  display: flex;
+  flex-direction: column;
+  min-width: 0;     /* 가로 넘침 방지 */
+  min-height: 0;    /* 🔑 세로 스크롤 가능하게 */
+  overflow: hidden; /* 셀 밖으로 넘침 차단 */
+  box-sizing: border-box;
 }
 
-#activity-section {
-    margin-top: 120px;
+/* 좌상: 검색 목록은 패널 자체가 스크롤 */
+#food-list{
+  flex: 1 1 auto;
+  overflow-y: auto;
+  overflow-x: hidden;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* 좌하: 접시는 테이블 래퍼(panel-scroll)가 스크롤 */
+#plate-panel .panel-scroll{
+  flex: 1 1 auto;         /* 남은 높이 모두 차지 */
+  min-height: 0;          /* 🔑 */
+  overflow: auto;         /* ✅ 테이블 스크롤 */
+  -webkit-overflow-scrolling: touch;
+}
+
+/* 테이블 안정화 */
+.plate-table{
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed;
+}
+.plate-table th, .plate-table td{
+  padding: 6px 8px;
+  border-bottom: 1px solid #eee;
+  word-break: break-all;
+}
+/* 상세 패널 자체를 스크롤 컨테이너로 */
+#food-detail{
+  overflow: auto !important;
+  min-height: 0;           /* 그리드 내부에서 스크롤 허용 */
+  position: relative;      /* sticky 기준 */
+  padding-bottom: 8px;     /* 버튼과 하단 여백 */
+}
+
+/* 상세 패널 맨 마지막 버튼(= 접시에 담기)을 항상 하단에 고정 */
+#food-detail #btn-add-plate.calc-btn{
+  background-color: #8F5BFF;
+  border-color:     #8F5BFF;
+  color: #fff;
+}
+#food-detail #btn-add-plate.calc-btn:hover{
+  filter: brightness(0.95);
+}
+#food-detail #btn-add-plate.calc-btn:active{
+  filter: brightness(0.9);
+}
+/* 우하(버튼/결과) 패널은 보통 스크롤 불필요하지만, 필요시 아래 주석 해제
+#plate-actions{ overflow:auto; }
+*/
+
+/* 겹침 유발 구 스타일 강제 해제 */
+.nutrition-grid, .panel { position: static !important; float: none !important; }
+
+/* 그 아래 '활동 대사량 계산기' 섹션과 여백 */
+#activity-section{
+  margin-top: 24px;   /* 겹침 방지용 여백 */
+  position: relative; /* 혹시 상단 패널이 상대/절대 포지션일 때도 안전 */
+}
+/* 7번째 열(중량) 자체 폭을 줄이고 줄바꿈 방지 */
+.plate-table th:nth-child(7),
+.plate-table td:nth-child(7){
+  width: 110px;          /* 원하는 값으로 조절 */
+  white-space: nowrap;   /* "입력칸 + g" 줄바꿈 방지 */
+}
+
+/* 중량 입력칸 크기/정렬 */
+.plate-table input.weight{
+  width: 72px;           /* ✨ 핵심: 가로 폭 */
+  height: 28px;          /* 높이 살짝 줄이기 */
+  padding: 2px 6px;      /* 내부 여백 */
+  font-size: 14px;
+  text-align: right;     /* 숫자 오른쪽 정렬(가독성 좋음) */
+  box-sizing: border-box;
+}
+
+/* 숫자입력 화살표 숨김(브라우저별) */
+.plate-table input[type="number"].weight{
+  -moz-appearance: textfield;              /* Firefox */
+}
+.plate-table input[type="number"].weight::-webkit-outer-spin-button,
+.plate-table input[type="number"].weight::-webkit-inner-spin-button{
+  -webkit-appearance: none; margin: 0;     /* Chrome/Safari */
 }
 
 

@@ -1,6 +1,6 @@
 /*API 경로 설정 및 토큰 가져오기*/
 // 본인의 로컬 경로에 맞게 수정
-const BASE_URL = 'http://localhost/web_termproject/back';
+const BASE_URL = 'http://localhost/dashboard/web_termproject/back';
 
 // 토큰 가져오기 헬퍼
 function getToken() {
@@ -299,8 +299,52 @@ function addToIntake() {
 /** ================= Nutrition Search + Plate ================== */
 
 // 1) 환경별 API 엔드포인트
-/*const NUTRI_API = 'http://localhost/my_fitness_partner/back/search.php'*/; // 🔧 로컬 XAMPP
+
 const NUTRI_API = `${BASE_URL}/search.php`;
+function buildSearchPayload(overrides = {}) {
+  const dataCd = document.getElementById('food-category').value;      // R/P/D
+  const searchField = document.getElementById('search-field').value;  // foodNm / foodLv4Nm
+  const keyword = document.getElementById('food-search').value.trim();
+
+  const base = {
+    dataCd,
+    searchField,
+    keyword,
+    pageNo: 1,
+    numOfRows: 10,
+  };
+  return { ...base, ...overrides };
+}
+
+async function doSearch(overrides = {}) {
+  const payload = buildSearchPayload(overrides);
+
+  const res = await fetch(`${BASE_URL}/search.php`, {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify(payload)
+  });
+
+  const json = await res.json();
+  if (!json.ok) {
+    console.error(json);
+    alert(json.error || '검색 중 오류가 발생했습니다.');
+    return;
+  }
+
+  // TODO: 여기서 json.data를 화면에 렌더링
+  //       예: 목록에 foodNm만 뿌리기
+  const items = json.data?.response?.body?.items || [];
+  const listEl = document.getElementById('search-list'); // <- 네가 쓰는 목록 컨테이너 id
+  if (listEl) {
+    listEl.innerHTML = items.map(it => `<li>${it.foodNm || '-'}</li>`).join('');
+  }
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  const btn = document.getElementById('btn-search');
+  if (btn) btn.addEventListener('click', resetAndSearch);
+});
 // 2) DOM 참조 (기존 HTML id 활용)
 const $cat = document.getElementById('food-category'); // raw/processed/meal
 const $kwd = document.getElementById('food-search');
@@ -327,11 +371,11 @@ const foodState = {
 
 // 4) 카테고리 → dataCd 매핑
 function toDataCd(v) {
-  switch (v) {
-    case 'raw': return 'R';
-    case 'processed': return 'P';
-    case 'meal': return 'D';
-    default: return 'R';
+  switch ((v || '').toLowerCase()) {
+    case 'r': case 'raw':       return 'R';
+    case 'p': case 'processed': return 'P';
+    case 'd': case 'meal':      return 'D';
+    default:                    return 'R';
   }
 }
 
@@ -341,33 +385,102 @@ function esc(s) {
     '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;','/':'&#x2F;','`':'&#x60;','=':'&#x3D;'
   }[c]));
 }
+async function fetchOnePage(pageNo){
+  const payload = {
+    dataCd:      foodState.query.dataCd,
+    searchField: foodState.query.searchField,
+    keyword:     foodState.query.keyword,
+    pageNo,
+    numOfRows:   foodState.query.numOfRows,
+    type:        'json'
+  };
 
-// 6) 목록 렌더 (foodNm만)
-function renderFoodList(append = true) {
-  if (!append) $foodList.innerHTML = '';
+  const res  = await fetch(NUTRI_API, {
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body: JSON.stringify(payload)
+  });
+  const text = await res.text();
+  if(!res.ok) throw new Error(`HTTP ${res.status}: ${text}`);
+  const json = JSON.parse(text);
 
-  if (foodState.items.length === 0 && !foodState.loading && foodState.meta.total === 0) {
-    $foodList.innerHTML = '<div class="empty">검색 결과가 없습니다.</div><div id="food-sentinel"></div>';
+  const body = json?.data?.response?.body;
+  const raw  = Array.isArray(body?.items) ? body.items : [];
+  const total = Number(body?.totalCount ?? 0);
+  const pageSize = Number(body?.numOfRows ?? foodState.query.numOfRows);
+
+  const toNum = v => (v==='' || v==null || isNaN(v)) ? null : Number(v);
+  const items = raw.map(row=>({
+    id: row.foodCd ?? null,
+    name: row.foodNm ?? row.foodLv4Nm ?? '(이름없음)',
+    hierarchy:{ lv3:row.foodLv3Nm ?? null, lv4:row.foodLv4Nm ?? null, lv5:row.foodLv5Nm ?? null, lv7:row.foodLv7Nm ?? null },
+    origin:{ code:row.foodOriginCd ?? null, name:row.foodOriginNm ?? null },
+    serving:{ unit:row.nutConSrtrQua ?? '100g' },
+    nutrients:{
+      kcal:toNum(row.enerc), protein:toNum(row.prot), fat:toNum(row.fatce),
+      carb:toNum(row.chocdf), sugar:toNum(row.sugar), sodium:toNum(row.nat)
+    },
+    source:row.srcNm ?? null, updatedAt:row.crtrYmd ?? null
+  }));
+
+  return { items, total, pageSize };
+}
+
+// 전체 페이지를 다 받아서 렌더
+async function fetchAllPages(){
+  $foodList.innerHTML = '<div class="loading">전체 목록 불러오는 중…</div>';
+
+  const all = [];
+  let pageNo = 1;
+  let total = Infinity;
+  let pageSize = foodState.query.numOfRows;
+
+  try{
+    while((pageNo-1)*pageSize < total){
+      const { items, total:t, pageSize:ps } = await fetchOnePage(pageNo);
+      if(t) total = t;
+      if(ps) pageSize = ps;
+      if(!items.length) break;
+
+      all.push(...items);
+
+      // 중간 렌더(사용자에게 진행상황 보여주기)
+      foodState.items = all.slice();
+      foodState.meta  = { total: total || all.length, page: pageNo, pageSize };
+      renderFoodList();
+
+      pageNo += 1;
+    }
+
+    // 최종 상태
+    foodState.items = all;
+    foodState.meta  = { total: total || all.length, page: 1, pageSize };
+    renderFoodList();
+
+  }catch(e){
+    console.error('fetchAllPages error:', e);
+    $foodList.innerHTML = '<div class="empty">목록을 불러오지 못했습니다.</div>';
+  }
+}
+
+// 목록 렌더 (옵션 B: 센티널 없이 그냥 그리기)
+function renderFoodList(){
+  $foodList.innerHTML = '';
+  const items = foodState.items || [];
+  if(!items.length){
+    $foodList.innerHTML = '<div class="empty">검색 결과가 없습니다.</div>';
     return;
   }
-
   const frag = document.createDocumentFragment();
-  foodState.items.forEach((it, idx) => {
-    if (document.getElementById('food-row-' + idx)) return;
+  items.forEach((it, idx)=>{
     const row = document.createElement('div');
     row.className = 'food-row';
-    row.id = 'food-row-' + idx;
-    row.innerHTML = `<div class="title">${esc(it.name ?? it.foodNm ?? '(이름없음)')}</div>`;
-    row.addEventListener('click', () => renderFoodDetail(it));
+    row.id = 'food-row-'+idx;
+    row.innerHTML = `<div class="title">${esc(it.name || '(이름없음)')}</div>`;
+    row.addEventListener('click', ()=>renderFoodDetail(it));
     frag.appendChild(row);
   });
-
-  const sentinel = document.getElementById('food-sentinel');
-  if (sentinel) $foodList.insertBefore(frag, sentinel);
-  else $foodList.appendChild(frag);
-
-  if (foodState.loading) addLoading();
-  else { removeLoading(); if (foodState.done) addDone(); }
+  $foodList.appendChild(frag);
 }
 
 function addLoading() {
@@ -532,128 +645,27 @@ $btnPlateCalc.addEventListener('click', () => {
 });
 
 // 11) 검색 실행 + 무한 스크롤
-function resetAndSearch() {
+function resetAndSearch(){
   foodState.items = [];
   foodState.done = false;
   foodState.loading = false;
 
-  const dataCd = toDataCd($cat.value || 'raw');
-  const foodNm = ($kwd.value || '').trim();
+  const dataCd = toDataCd($cat.value || 'R');
+  const keyword = ($kwd.value || '').trim();
+  const searchField = document.getElementById('search-field')?.value || 'foodNm';
 
-  if (!foodNm) {
-    $foodList.innerHTML = '<div class="empty">검색어를 입력하세요.</div>';
+  if(!keyword){
+    $foodList.innerHTML   = '<div class="empty">검색어를 입력하세요.</div>';
     $foodDetail.innerHTML = '<div class="empty">항목을 선택하면 상세가 표시됩니다.</div>';
     return;
   }
-  foodState.query = { dataCd, foodNm, pageNo: 1, numOfRows: 10 };
 
-  $foodList.innerHTML = '<div class="loading">검색 중...</div><div id="food-sentinel"></div>';
+  foodState.query = { dataCd, searchField, keyword, pageNo:1, numOfRows:10 };
+
   $foodDetail.innerHTML = '<div class="empty">항목을 선택하면 상세가 표시됩니다.</div>';
-  fetchFoodPage().then(mountFoodObserver);
+  fetchAllPages();
 }
 window.resetAndSearch = resetAndSearch;
-
-async function fetchFoodPage() {
-  if (foodState.loading || foodState.done) return;
-  foodState.loading = true; addLoading();
-
-  const payload = {
-    dataCd: foodState.query.dataCd,
-    foodNm: foodState.query.foodNm,
-    pageNo: foodState.query.pageNo,
-    numOfRows: foodState.query.numOfRows,
-    type: 'json'
-  };
-
-  let resText = '';
-  try {
-    const res = await fetch(NUTRI_API, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload)
-    });
-    resText = await res.text();
-    if (!res.ok) throw new Error(`HTTP ${res.status}: ${resText}`);
-    const json = JSON.parse(resText);
-
-    let meta = null, items = null;
-
-    // (A) 표준화 {ok, meta, items}
-    if (json && json.ok && json.meta && Array.isArray(json.items)) {
-      meta = json.meta;
-      items = json.items;
-
-    // (B) 원본 { ok:true, data:{response:{body:{items...}}}}
-    } else if (json && json.ok && json.data?.response?.body) {
-      const body = json.data.response.body;
-      const rawItems = Array.isArray(body.items) ? body.items : [];
-      const total = Number(body.totalCount ?? 0);
-      const page = Number(body.pageNo ?? foodState.query.pageNo);
-      const pageSize = Number(body.numOfRows ?? foodState.query.numOfRows);
-      const category = rawItems[0]?.typeNm ||
-        (foodState.query.dataCd === 'R' ? '원재료성' : foodState.query.dataCd === 'P' ? '가공식품' : '음식');
-
-      const toNum = v => (v === '' || v == null || isNaN(v)) ? null : Number(v);
-      items = rawItems.map(row => ({
-        id: row.foodCd ?? null,
-        name: row.foodNm ?? row.foodLv4Nm ?? '(이름없음)',
-        hierarchy: {
-          lv3: row.foodLv3Nm ?? null,
-          lv4: row.foodLv4Nm ?? null,
-          lv5: row.foodLv5Nm ?? null,
-          lv7: row.foodLv7Nm ?? null,
-        },
-        origin: { code: row.foodOriginCd ?? null, name: row.foodOriginNm ?? null },
-        serving: { unit: row.nutConSrtrQua ?? '100g' },
-        nutrients: {
-          kcal:    toNum(row.enerc),
-          protein: toNum(row.prot),
-          fat:     toNum(row.fatce),
-          carb:    toNum(row.chocdf),
-          sugar:   toNum(row.sugar),
-          sodium:  toNum(row.nat),
-        },
-        source: row.srcNm ?? null,
-        updatedAt: row.crtrYmd ?? null,
-      }));
-      meta = { page, pageSize, total, category };
-
-    } else {
-      throw new Error('알 수 없는 응답 포맷');
-    }
-
-    foodState.meta = meta || {};
-    const got = (items || []).length;
-    foodState.items = foodState.items.concat(items || []);
-    const loaded = foodState.items.length;
-    const total = Number(foodState.meta.total || 0);
-    foodState.done = (total > 0 ? loaded >= total : got === 0);
-    foodState.query.pageNo += 1;
-
-    renderFoodList(true);
-
-  } catch (e) {
-    console.error('nutrition fetch error:', e, resText);
-    removeLoading();
-    const err = document.createElement('div');
-    err.className = 'empty';
-    err.textContent = '불러오기에 실패했습니다. 콘솔을 확인해주세요.';
-    $foodList.appendChild(err);
-    foodState.done = true;
-  } finally {
-    foodState.loading = false;
-  }
-}
-
-// 무한 스크롤 옵저버
-const foodIO = new IntersectionObserver(entries => {
-  entries.forEach(entry => { if (entry.isIntersecting) fetchFoodPage(); });
-}, { root: $foodList, threshold: 0.1 });
-
-function mountFoodObserver() {
-  const s = document.getElementById('food-sentinel');
-  if (s) foodIO.observe(s);
-}
 
 // 12) 이벤트 바인딩
 document.addEventListener('DOMContentLoaded', () => {
@@ -669,9 +681,6 @@ document.addEventListener('DOMContentLoaded', () => {
   });
   // 카테고리 변경 시도 검색
   $cat.addEventListener('change', resetAndSearch);
-<<<<<<< HEAD
-});
-=======
 });
 
 
@@ -748,4 +757,4 @@ modalSaveBtn.addEventListener("click", async () => {
         alert(json.message);
     }
 });
->>>>>>> main
+
