@@ -386,20 +386,22 @@ body.main-page {
 /* 2행×2열: 열은 2:1, 행은 1:1 */
 .nutrition-grid{
   display: grid;
-  grid-template-columns: 2fr 1fr;           /* 2:1 너비 */
-  grid-template-rows: minmax(0,1fr) minmax(0,1fr); /* 🔑 1:1 높이 + 내부 스크롤 허용 */
+  grid-template-columns: 2fr 1fr;
+  grid-template-rows: minmax(0,1fr) minmax(0,1fr);
   gap: 16px;
-  height: var(--nutri-grid-h);              /* 전체 높이 고정 */
+  height: var(--nutri-grid-h);
   align-items: stretch;
+  width: 95%;
+  margin-top: 10px;
 }
 
 /* 각 셀 패널 기본: 내부 넘침을 자식에게 맡김 */
 .nutrition-grid > .panel{
   display: flex;
   flex-direction: column;
-  min-width: 0;     /* 가로 넘침 방지 */
-  min-height: 0;    /* 🔑 세로 스크롤 가능하게 */
-  overflow: hidden; /* 셀 밖으로 넘침 차단 */
+  min-width: 0;
+  min-height: 0;
+  overflow: hidden;
   box-sizing: border-box;
 }
 
@@ -414,15 +416,15 @@ body.main-page {
 
 /* 좌하: 접시는 테이블 래퍼(panel-scroll)가 스크롤 */
 #plate-panel .panel-scroll{
-  flex: 1 1 auto;         /* 남은 높이 모두 차지 */
-  min-height: 0;          /* 🔑 */
-  overflow: auto;         /* ✅ 테이블 스크롤 */
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow: auto;
   -webkit-overflow-scrolling: touch;
 }
 
 /* 테이블 안정화 */
 .plate-table{
-  width: 100%;
+  width: 80%;
   border-collapse: collapse;
   table-layout: fixed;
 }
@@ -472,11 +474,11 @@ body.main-page {
 
 /* 중량 입력칸 크기/정렬 */
 .plate-table input.weight{
-  width: 72px;           /* ✨ 핵심: 가로 폭 */
-  height: 28px;          /* 높이 살짝 줄이기 */
-  padding: 2px 6px;      /* 내부 여백 */
+  width: 72px;
+  height: 28px;
+  padding: 2px 6px; 
   font-size: 14px;
-  text-align: right;     /* 숫자 오른쪽 정렬(가독성 좋음) */
+  text-align: right;
   box-sizing: border-box;
 }
 
