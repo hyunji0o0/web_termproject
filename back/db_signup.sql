@@ -28,7 +28,7 @@ CREATE TABLE verification_codes (
 )
 COMMENT='이메일 인증 코드 및 만료 시간 관리';
 
---로그인 후 발급된 토큰과 토큰의 만료 시간 저장
+-- 로그인 후 발급된 토큰과 토큰의 만료 시간 저장
 CREATE TABLE revoked_tokens (
     jti VARCHAR(255) PRIMARY KEY,
     expires_at INT NOT NULL
