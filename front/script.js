@@ -1,6 +1,6 @@
 /*API 경로 설정 및 토큰 가져오기*/
 // 본인의 로컬 경로에 맞게 수정
-const BASE_URL = 'http://localhost/dashboard/web_termproject/back';
+const BASE_URL = 'http://localhost/dashboard/web_termproject-main/back';
 
 // 토큰 가져오기 헬퍼
 function getToken() {
