@@ -3,7 +3,7 @@
 // 역할: 로그인한 사용자의 키 또는 몸무게 정보를 수정함
 
 require_once 'db_connection.php';
-require_once 'vendor/autoload.php';
+require_once __DIR__ . '/../vendor/autoload.php';
 require_once 'config.php';
 
 use Firebase\JWT\JWT;

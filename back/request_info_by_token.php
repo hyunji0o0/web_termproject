@@ -2,7 +2,7 @@
 // 역할: 이메일 기반 최신 토큰 조회 및 유저 정보 검증
 
 require_once 'db_connection.php';
-require_once 'vendor/autoload.php';
+require_once __DIR__ . '/../vendor/autoload.php';
 require_once 'config.php';
 
 use Firebase\JWT\JWT;

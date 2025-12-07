@@ -3,7 +3,7 @@
 // 이 파일은 사용자의 JWT 토큰을 즉시 무효화(revoked_token에 추가)하여 로그아웃 처리를 함
 
 require 'db_connection.php';
-require 'vendor/autoload.php';
+require_once __DIR__ . '/../vendor/autoload.php';
 require_once 'config.php'; // 추가 설정 파일
 
 // JWT 라이브러리 사용 선언

@@ -1,7 +1,7 @@
 <?php
 // 필요한 파일 포함
 require_once 'db_connection.php'; // DB 연결 ($pdo)
-require_once 'vendor/autoload.php'; // Composer 라이브러리
+require_once __DIR__ . '/../vendor/autoload.php'; // Composer 라이브러리
 require_once 'config.php'; // 추가 설정 파일
 
 // JWT 네임스페이스 사용
